@@ -1,1 +1,360 @@
+<!DOCTYPE html>
+<html lang="pl" x-data="{ mobileMenuOpen: false, darkMode: localStorage.getItem('darkMode') === 'true', scrollPosition: 0, showNewsletterModal: false, newsletterEmail: '' }"
+      :class="{ 'dark': darkMode }" @scroll.window="scrollPosition = window.pageYOffset">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Oficjalna strona Republiki Globo - nowoczesnej mikronacji opartej na wolności, innowacji i współpracy.">
+    <title>Republika Globo</title>
 
+    <!-- Tailwind (dev CDN ok) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    animation: {
+                        'float': 'float 6s ease-in-out infinite',
+                        'fade-in': 'fadeIn 0.5s ease-out forwards',
+                        'slide-up': 'slideUp 0.8s ease-out forwards',
+                        'scale-in': 'scaleIn 0.5s ease-out forwards',
+                        'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                    },
+                    keyframes: {
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0)' },
+                            '50%': { transform: 'translateY(-10px)' },
+                        },
+                        fadeIn: { '0%': { opacity: '0' }, '100%': { opacity: '1' } },
+                        slideUp: { '0%': { transform: 'translateY(30px)', opacity: '0' }, '100%': { transform: 'translateY(0)', opacity: '1' } },
+                        scaleIn: { '0%': { transform: 'scale(0.9)', opacity: '0' }, '100%': { transform: 'scale(1)', opacity: '1' } }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <script src="https://unpkg.com/htmx.org@1.9.6"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0/dist/fancybox/fancybox.css" />
+
+    <!-- Twoje dodatkowe style -->
+    <link rel="stylesheet" href="css/styles.css">
+    <style>
+        [x-cloak] { display: none !important; }
+        
+        /* Nowe style dla rozszerzeń */
+        .progress-bar {
+            height: 4px;
+            background: linear-gradient(90deg, #4facfe 0%, #00f2fe 100%);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+        
+        .typewriter {
+            overflow: hidden;
+            border-right: .15em solid #667eea;
+            white-space: nowrap;
+            margin: 0 auto;
+            letter-spacing: .15em;
+            animation: typing 3.5s steps(40, end), blink-caret .75s step-end infinite;
+        }
+        
+        @keyframes typing {
+            from { width: 0 }
+            to { width: 100% }
+        }
+        
+        @keyframes blink-caret {
+            from, to { border-color: transparent }
+            50% { border-color: #667eea; }
+        }
+        
+        .parallax {
+            background-attachment: fixed;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-size: cover;
+        }
+        
+        .globe-spinner {
+            width: 50px;
+            height: 50px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 1s ease-in-out infinite;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body class="bg-gray-50 dark:bg-gray-900 text-gray-800 dark:text-gray-200 transition-colors duration-300 min-h-screen flex flex-col" x-cloak>
+
+    <!-- Progress bar -->
+    <div class="progress-bar fixed top-0 left-0 z-50" id="pageProgress"></div>
+
+    <!-- Header -->
+    <header class="gradient-bg text-white shadow-lg sticky top-0 z-50 transition-all duration-300"
+            :class="{ 'py-2': scrollPosition > 50, 'py-4': scrollPosition <= 50 }">
+        <div class="container mx-auto px-4">
+            <div class="flex justify-between items-center">
+                <a href="#/home" class="text-2xl font-bold flex items-center space-x-2">
+                    <img src="assets/images/logo.svg" alt="Logo Republiki Globo" class="h-10 w-10 rounded-full">
+                    <span>Republika Globo</span>
+                </a>
+
+                <!-- Desktop Navigation -->
+                <nav class="hidden md:flex space-x-1">
+                    <a href="#/about" class="px-3 py-2 rounded-lg hover:bg-white/10 transition-all duration-300 flex items-center">
+                        <i class="fas fa-info-circle mr-2"></i> O nas
+                    </a>
+                    <a href="#/values" class="px-3 py-2 rounded-lg hover:bg-white/10 transition-all duration-300 flex items-center">
+                        <i class="fas fa-star mr-2"></i> Wartości
+                    </a>
+                    <a href="#/language" class="px-3 py-2 rounded-lg hover:bg-white/10 transition-all duration-300 flex items-center">
+                        <i class="fas fa-language mr-2"></i> Język
+                    </a>
+                    <a href="#/forum" class="px-3 py-2 rounded-lg hover:bg-white/10 transition-all duration-300 flex items-center">
+                        <i class="fas fa-comments mr-2"></i> Forum
+                    </a>
+                    <a href="#/history" class="px-3 py-2 rounded-lg hover:bg-white/10 transition-all duration-300 flex items-center">
+                        <i class="fas fa-history mr-2"></i> Historia
+                    </a>
+                    <a href="#/documents" class="px-3 py-2 rounded-lg hover:bg-white/10 transition-all duration-300 flex items-center">
+                        <i class="fas fa-file-alt mr-2"></i> Dokumenty
+                    </a>
+                    <a href="#/partners" class="px-3 py-2 rounded-lg hover:bg-white/10 transition-all duration-300 flex items-center">
+                        <i class="fas fa-handshake mr-2"></i> Partnerzy
+                    </a>
+                    <a href="#/news" class="px-3 py-2 rounded-lg hover:bg-white/10 transition-all duration-300 flex items-center">
+                        <i class="fas fa-newspaper mr-2"></i> Wiadomości
+                    </a>
+                    <a href="#/contact" class="px-3 py-2 rounded-lg hover:bg-white/10 transition-all duration-300 flex items-center">
+                        <i class="fas fa-envelope mr-2"></i> Kontakt
+                    </a>
+                </nav>
+
+                <!-- Mobile menu button -->
+                <div class="flex items-center space-x-4">
+                    <button @click="darkMode = !darkMode; localStorage.setItem('darkMode', darkMode)"
+                            class="p-2 rounded-full hover:bg-white/10 transition-all duration-300" aria-label="Przełącz tryb ciemny">
+                        <span x-text="darkMode ? '☀️' : '🌙'"></span>
+                    </button>
+                    <button @click="mobileMenuOpen = !mobileMenuOpen" class="md:hidden p-2 rounded-lg hover:bg-white/10 transition-all duration-300" aria-label="Otwórz menu">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                  :d="mobileMenuOpen ? 'M6 18L18 6M6 6l12 12' : 'M4 6h16M4 12h16M4 18h16'"></path>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Mobile Navigation -->
+            <div class="md:hidden mt-3 transition-all duration-300 origin-top"
+                 x-show="mobileMenuOpen" x-transition:enter="transition ease-out duration-300"
+                 x-transition:enter-start="opacity-0 transform -translate-y-4"
+                 x-transition:enter-end="opacity-100 transform translate-y-0"
+                 x-transition:leave="transition ease-in duration-200"
+                 x-transition:leave-start="opacity-100 transform translate-y-0"
+                 x-transition:leave-end="opacity-0 transform -translate-y-4">
+                <div class="flex flex-col space-y-2 py-3 bg-blue-800/50 rounded-lg">
+                    <a href="#/about" class="px-3 py-2 rounded-lg hover:bg-white/10 transition" @click="mobileMenuOpen = false">
+                        <i class="fas fa-info-circle mr-2"></i> O nas
+                    </a>
+                    <a href="#/values" class="px-3 py-2 rounded-lg hover:bg-white/10 transition" @click="mobileMenuOpen = false">
+                        <i class="fas fa-star mr-2"></i> Wartości
+                    </a>
+                    <a href="#/language" class="px-3 py-2 rounded-lg hover:bg-white/10 transition" @click="mobileMenuOpen = false">
+                        <i class="fas fa-language mr-2"></i> Język
+                    </a>
+                    <a href="#/forum" class="px-3 py-2 rounded-lg hover:bg-white/10 transition" @click="mobileMenuOpen = false">
+                        <i class="fas fa-comments mr-2"></i> Forum
+                    </a>
+                    <a href="#/history" class="px-3 py-2 rounded-lg hover:bg-white/10 transition" @click="mobileMenuOpen = false">
+                        <i class="fas fa-history mr-2"></i> Historia
+                    </a>
+                    <a href="#/documents" class="px-3 py-2 rounded-lg hover:bg-white/10 transition" @click="mobileMenuOpen = false">
+                        <i class="fas fa-file-alt mr-2"></i> Dokumenty
+                    </a>
+                    <a href="#/partners" class="px-3 py-2 rounded-lg hover:bg-white/10 transition" @click="mobileMenuOpen = false">
+                        <i class="fas fa-handshake mr-2"></i> Partnerzy
+                    </a>
+                    <a href="#/news" class="px-3 py-2 rounded-lg hover:bg-white/10 transition" @click="mobileMenuOpen = false">
+                        <i class="fas fa-newspaper mr-2"></i> Wiadomości
+                    </a>
+                    <a href="#/contact" class="px-3 py-2 rounded-lg hover:bg-white/10 transition" @click="mobileMenuOpen = false">
+                        <i class="fas fa-envelope mr-2"></i> Kontakt
+                    </a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content (router wstrzykuje tutaj) -->
+    <main id="app" class="flex-1 container mx-auto px-4 py-8">
+        <div class="text-center text-gray-500 flex flex-col items-center justify-center min-h-[50vh]">
+            <div class="globe-spinner mb-4"></div>
+            <p>Ładowanie treści...</p>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-gray-800 text-white py-12 mt-12">
+        <div class="container mx-auto px-4">
+            <div class="grid md:grid-cols-4 gap-8">
+                <div>
+                    <h3 class="text-xl font-semibold mb-4">Republika Globo</h3>
+                    <p class="text-gray-400">Nowoczesna społeczność obywatelska budująca lepszą przyszłość poprzez innowacje i współpracę.</p>
+                    <div class="flex space-x-4 mt-4">
+                        <a href="#" class="text-gray-400 hover:text-white transition"><i class="fab fa-twitter"></i></a>
+                        <a href="#" class="text-gray-400 hover:text-white transition"><i class="fab fa-facebook"></i></a>
+                        <a href="#" class="text-gray-400 hover:text-white transition"><i class="fab fa-instagram"></i></a>
+                        <a href="#" class="text-gray-400 hover:text-white transition"><i class="fab fa-linkedin"></i></a>
+                    </div>
+                </div>
+                <div>
+                    <h4 class="font-semibold mb-4">Szybkie linki</h4>
+                    <ul class="space-y-2">
+                        <li><a href="#/about" class="text-gray-400 hover:text-white transition"><i class="fas fa-arrow-right mr-2"></i> O nas</a></li>
+                        <li><a href="#/documents" class="text-gray-400 hover:text-white transition"><i class="fas fa-arrow-right mr-2"></i> Dokumenty</a></li>
+                        <li><a href="#/news" class="text-gray-400 hover:text-white transition"><i class="fas fa-arrow-right mr-2"></i> Wiadomości</a></li>
+                        <li><a href="#/contact" class="text-gray-400 hover:text-white transition"><i class="fas fa-arrow-right mr-2"></i> Kontakt</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="font-semibold mb-4">Nasze projekty</h4>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="text-gray-400 hover:text-white transition"><i class="fas fa-arrow-right mr-2"></i> Globish Academy</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition"><i class="fas fa-arrow-right mr-2"></i> EcoTech Initiative</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition"><i class="fas fa-arrow-right mr-2"></i> Digital Governance</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="font-semibold mb-4">Newsletter</h4>
+                    <p class="text-gray-400 mb-3">Zapisz się, aby otrzymywać najnowsze wiadomości.</p>
+                    <div class="flex">
+                        <input type="email" x-model="newsletterEmail" placeholder="Twój email" class="bg-gray-700 text-white px-4 py-2 rounded-l-lg focus:outline-none focus:ring-2 focus:ring-blue-500 w-full">
+                        <button class="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-r-lg transition"
+                                @click="showNewsletterModal = true; $nextTick(() => { setTimeout(() => { showNewsletterModal = false }, 3000); newsletterEmail = ''; })">
+                            Zapisz
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="border-t border-gray-700 mt-8 pt-8 text-center text-gray-400">
+                <p>&copy; 2023 Republika Globo. Wszelkie prawa zastrzeżone.</p>
+            </div>
+        </div>
+    </footer>
+
+    <button x-show="scrollPosition > 300" @click="window.scrollTo({ top: 0, behavior: 'smooth' })"
+            class="fixed bottom-6 right-6 bg-blue-600 text-white p-3 rounded-full shadow-lg hover:bg-blue-700 transition-all duration-300 z-40"
+            aria-label="Powrót na górę">
+        <i class="fas fa-arrow-up"></i>
+    </button>
+
+    <!-- Modal newsletter -->
+    <div x-show="showNewsletterModal" x-transition:enter="transition ease-out duration-300" 
+         x-transition:enter-start="opacity-0 transform scale-90" 
+         x-transition:enter-end="opacity-100 transform scale-100"
+         x-transition:leave="transition ease-in duration-200" 
+         x-transition:leave-start="opacity-100 transform scale-100" 
+         x-transition:leave-end="opacity-0 transform scale-90"
+         class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+        <div class="bg-white dark:bg-gray-800 rounded-lg p-6 max-w-md w-full shadow-xl">
+            <div class="text-center">
+                <div class="w-16 h-16 bg-green-100 dark:bg-green-900 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i class="fas fa-check text-green-600 dark:text-green-400 text-2xl"></i>
+                </div>
+                <h3 class="text-xl font-bold mb-2">Dziękujemy!</h3>
+                <p class="text-gray-600 dark:text-gray-300">Twój adres e-mail został zapisany do naszego newslettera.</p>
+                <button @click="showNewsletterModal = false" class="mt-4 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition">
+                    Zamknij
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Live chat widget -->
+    <div class="fixed bottom-6 left-6 z-40">
+        <button @click="$dispatch('open-chat')" class="bg-blue-600 text-white p-3 rounded-full shadow-lg hover:bg-blue-700 transition-all duration-300 flex items-center justify-center w-14 h-14">
+            <i class="fas fa-comments text-xl"></i>
+        </button>
+    </div>
+
+    <!-- Live chat modal -->
+    <div x-data="{ chatOpen: false, messages: [], newMessage: '' }" 
+         x-show="chatOpen" 
+         x-transition:enter="transition ease-out duration-300" 
+         x-transition:enter-start="opacity-0 transform scale-90 translate-y-10" 
+         x-transition:enter-end="opacity-100 transform scale-100 translate-y-0"
+         x-transition:leave="transition ease-in duration-200" 
+         x-transition:leave-start="opacity-100 transform scale-100 translate-y-0" 
+         x-transition:leave-end="opacity-0 transform scale-90 translate-y-10"
+         @open-chat.window="chatOpen = true"
+         class="fixed bottom-24 left-6 w-80 bg-white dark:bg-gray-800 rounded-lg shadow-xl z-50 overflow-hidden">
+        <div class="bg-blue-600 text-white p-4 flex justify-between items-center">
+            <h3 class="font-semibold">Czat na żywo</h3>
+            <button @click="chatOpen = false" class="text-white hover:text-gray-200">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="p-4 h-64 overflow-y-auto bg-gray-50 dark:bg-gray-700">
+            <template x-for="(message, index) in messages" :key="index">
+                <div class="mb-3" :class="{ 'text-right': message.sender === 'user' }">
+                    <div class="inline-block px-4 py-2 rounded-lg max-w-xs" 
+                         :class="message.sender === 'user' ? 'bg-blue-600 text-white' : 'bg-gray-200 dark:bg-gray-600 text-gray-800 dark:text-gray-200'">
+                        <span x-text="message.text"></span>
+                    </div>
+                    <div class="text-xs text-gray-500 mt-1" x-text="message.time"></div>
+                </div>
+            </template>
+        </div>
+        <div class="p-3 border-t border-gray-200 dark:border-gray-600 flex">
+            <input type="text" x-model="newMessage" placeholder="Napisz wiadomość..." 
+                   class="flex-1 bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-l-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+            <button @click="if(newMessage.trim() !== '') { 
+                messages.push({ text: newMessage, sender: 'user', time: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) }); 
+                newMessage = ''; 
+                setTimeout(() => { 
+                    messages.push({ text: 'Dziękujemy za wiadomość! Odpowiemy wkrótce.', sender: 'support', time: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) }) 
+                }, 1000); 
+            }" class="bg-blue-600 text-white px-4 py-2 rounded-r-lg hover:bg-blue-700 transition">
+                <i class="fas fa-paper-plane"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- router script -->
+    <script src="js/router.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0/dist/fancybox/fancybox.umd.js"></script>
+    <script>
+        // Inicjalizacja Fancybox dla galerii
+        Fancybox.bind("[data-fancybox]", {});
+        
+        // Obsługa paska postępu
+        window.addEventListener('scroll', function() {
+            const winHeight = window.innerHeight;
+            const docHeight = document.documentElement.scrollHeight;
+            const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+            const scrollPercent = (scrollTop / (docHeight - winHeight)) * 100;
+            document.getElementById('pageProgress').style.width = scrollPercent + '%';
+        });
+        
+        // Inicjalizacja tooltipów
+        document.addEventListener('alpine:init', () => {
+            Alpine.directive('tooltip', (el, { expression }, { evaluate }) => {
+                const text = evaluate(expression);
+                el.setAttribute('title', text);
+                el.classList.add('cursor-help');
+            });
+        });
+    </script>
+</body>
+</html>

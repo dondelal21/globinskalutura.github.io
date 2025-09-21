@@ -1,0 +1,715 @@
+Oto strona dla mojej mikronacji republiki globo i przedstawie ci jej strukturę i jej kod
+
+
+STRUKTURA:
+
+public_html/
+├── index.html
+├── css/
+│   └── styles.css
+├── js/
+│   └── router.js
+├── assets/
+│   └── images/
+│       └── logo.svg
+└── pages/
+    ├── home.json
+    ├── about.json
+    ├── values.json
+    ├── language.json
+    ├── forum.json
+    ├── history.json
+    ├── documents.json
+    ├── partners.json
+    ├── news.json
+    ├── contact.json
+    ├── join.json
+    └── news/
+        ├── n1.json
+        ├── n2.json
+        ├── n3.json
+        ├── n4.json
+        ├── n5.json
+        └── n6.json
+
+
+KOD: 
+
+<==index.html==>
+
+<!DOCTYPE html>
+<html lang="pl" x-data="{ mobileMenuOpen: false, darkMode: localStorage.getItem('darkMode') === 'true', scrollPosition: 0 }"
+      :class="{ 'dark': darkMode }" @scroll.window="scrollPosition = window.pageYOffset">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Republika Globo</title>
+
+    <!-- Tailwind (dev CDN ok) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    animation: {
+                        'float': 'float 6s ease-in-out infinite',
+                        'fade-in': 'fadeIn 0.5s ease-out forwards',
+                        'slide-up': 'slideUp 0.8s ease-out forwards',
+                        'scale-in': 'scaleIn 0.5s ease-out forwards',
+                    },
+                    keyframes: {
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0)' },
+                            '50%': { transform: 'translateY(-10px)' },
+                        },
+                        fadeIn: { '0%': { opacity: '0' }, '100%': { opacity: '1' } },
+                        slideUp: { '0%': { transform: 'translateY(30px)', opacity: '0' }, '100%': { transform: 'translateY(0)', opacity: '1' } },
+                        scaleIn: { '0%': { transform: 'scale(0.9)', opacity: '0' }, '100%': { transform: 'scale(1)', opacity: '1' } }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <script src="https://unpkg.com/htmx.org@1.9.6"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Twoje dodatkowe style -->
+    <link rel="stylesheet" href="css/styles.css">
+    <style>
+        [x-cloak] { display: none !important; }
+    </style>
+</head>
+<body class="bg-gray-50 dark:bg-gray-900 text-gray-800 dark:text-gray-200 transition-colors duration-300 min-h-screen flex flex-col" x-cloak>
+
+    <!-- Header -->
+    <header class="gradient-bg text-white shadow-lg sticky top-0 z-50 transition-all duration-300"
+            :class="{ 'py-2': scrollPosition > 50, 'py-4': scrollPosition <= 50 }">
+        <div class="container mx-auto px-4">
+            <div class="flex justify-between items-center">
+                <a href="#/home" class="text-2xl font-bold flex items-center space-x-2">
+                    <img src="assets/images/logo.svg" alt="Logo Republiki Globo" class="h-10 w-10 rounded-full">
+                    <span>Republika Globo</span>
+                </a>
+
+                <!-- Desktop Navigation -->
+                <nav class="hidden md:flex space-x-1">
+                    <a href="#/about" class="px-3 py-2 rounded-lg hover:bg-white/10 transition-all duration-300 flex items-center">
+                        <i class="fas fa-info-circle mr-2"></i> O nas
+                    </a>
+                    <a href="#/values" class="px-3 py-2 rounded-lg hover:bg-white/10 transition-all duration-300 flex items-center">
+                        <i class="fas fa-star mr-2"></i> Wartości
+                    </a>
+                    <a href="#/language" class="px-3 py-2 rounded-lg hover:bg-white/10 transition-all duration-300 flex items-center">
+                        <i class="fas fa-language mr-2"></i> Język
+                    </a>
+                    <a href="#/forum" class="px-3 py-2 rounded-lg hover:bg-white/10 transition-all duration-300 flex items-center">
+                        <i class="fas fa-comments mr-2"></i> Forum
+                    </a>
+                    <a href="#/history" class="px-3 py-2 rounded-lg hover:bg-white/10 transition-all duration-300 flex items-center">
+                        <i class="fas fa-history mr-2"></i> Historia
+                    </a>
+                    <a href="#/documents" class="px-3 py-2 rounded-lg hover:bg-white/10 transition-all duration-300 flex items-center">
+                        <i class="fas fa-file-alt mr-2"></i> Dokumenty
+                    </a>
+                    <a href="#/partners" class="px-3 py-2 rounded-lg hover:bg-white/10 transition-all duration-300 flex items-center">
+                        <i class="fas fa-handshake mr-2"></i> Partnerzy
+                    </a>
+                    <a href="#/news" class="px-3 py-2 rounded-lg hover:bg-white/10 transition-all duration-300 flex items-center">
+                        <i class="fas fa-newspaper mr-2"></i> Wiadomości
+                    </a>
+                    <a href="#/contact" class="px-3 py-2 rounded-lg hover:bg-white/10 transition-all duration-300 flex items-center">
+                        <i class="fas fa-envelope mr-2"></i> Kontakt
+                    </a>
+                </nav>
+
+                <!-- Mobile menu button -->
+                <div class="flex items-center space-x-4">
+                    <button @click="darkMode = !darkMode; localStorage.setItem('darkMode', darkMode)"
+                            class="p-2 rounded-full hover:bg-white/10 transition-all duration-300">
+                        <span x-text="darkMode ? '☀️' : '🌙'"></span>
+                    </button>
+                    <button @click="mobileMenuOpen = !mobileMenuOpen" class="md:hidden p-2 rounded-lg hover:bg-white/10 transition-all duration-300">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                  :d="mobileMenuOpen ? 'M6 18L18 6M6 6l12 12' : 'M4 6h16M4 12h16M4 18h16'"></path>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Mobile Navigation -->
+            <div class="md:hidden mt-3 transition-all duration-300 origin-top"
+                 x-show="mobileMenuOpen" x-transition:enter="transition ease-out duration-300"
+                 x-transition:enter-start="opacity-0 transform -translate-y-4"
+                 x-transition:enter-end="opacity-100 transform translate-y-0"
+                 x-transition:leave="transition ease-in duration-200"
+                 x-transition:leave-start="opacity-100 transform translate-y-0"
+                 x-transition:leave-end="opacity-0 transform -translate-y-4">
+                <div class="flex flex-col space-y-2 py-3 bg-blue-800/50 rounded-lg">
+                    <a href="#/about" class="px-3 py-2 rounded-lg hover:bg-white/10 transition" @click="mobileMenuOpen = false">
+                        <i class="fas fa-info-circle mr-2"></i> O nas
+                    </a>
+                    <a href="#/values" class="px-3 py-2 rounded-lg hover:bg-white/10 transition" @click="mobileMenuOpen = false">
+                        <i class="fas fa-star mr-2"></i> Wartości
+                    </a>
+                    <a href="#/language" class="px-3 py-2 rounded-lg hover:bg-white/10 transition" @click="mobileMenuOpen = false">
+                        <i class="fas fa-language mr-2"></i> Język
+                    </a>
+                    <a href="#/forum" class="px-3 py-2 rounded-lg hover:bg-white/10 transition" @click="mobileMenuOpen = false">
+                        <i class="fas fa-comments mr-2"></i> Forum
+                    </a>
+                    <a href="#/history" class="px-3 py-2 rounded-lg hover:bg-white/10 transition" @click="mobileMenuOpen = false">
+                        <i class="fas fa-history mr-2"></i> Historia
+                    </a>
+                    <a href="#/documents" class="px-3 py-2 rounded-lg hover:bg-white/10 transition" @click="mobileMenuOpen = false">
+                        <i class="fas fa-file-alt mr-2"></i> Dokumenty
+                    </a>
+                    <a href="#/partners" class="px-3 py-2 rounded-lg hover:bg-white/10 transition" @click="mobileMenuOpen = false">
+                        <i class="fas fa-handshake mr-2"></i> Partnerzy
+                    </a>
+                    <a href="#/news" class="px-3 py-2 rounded-lg hover:bg-white/10 transition" @click="mobileMenuOpen = false">
+                        <i class="fas fa-newspaper mr-2"></i> Wiadomości
+                    </a>
+                    <a href="#/contact" class="px-3 py-2 rounded-lg hover:bg-white/10 transition" @click="mobileMenuOpen = false">
+                        <i class="fas fa-envelope mr-2"></i> Kontakt
+                    </a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content (router wstrzykuje tutaj) -->
+    <main id="app" class="flex-1 container mx-auto px-4 py-8">
+        <div class="text-center text-gray-500">Ładowanie treści...</div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-gray-800 text-white py-12 mt-12">
+        <div class="container mx-auto px-4">
+            <div class="grid md:grid-cols-4 gap-8">
+                <div>
+                    <h3 class="text-xl font-semibold mb-4">Republika Globo</h3>
+                    <p class="text-gray-400">Nowoczesna społeczność obywatelska budująca lepszą przyszłość poprzez innowacje i współpracę.</p>
+                    <div class="flex space-x-4 mt-4">
+                        <a href="#" class="text-gray-400 hover:text-white transition"><i class="fab fa-twitter"></i></a>
+                        <a href="#" class="text-gray-400 hover:text-white transition"><i class="fab fa-facebook"></i></a>
+                        <a href="#" class="text-gray-400 hover:text-white transition"><i class="fab fa-instagram"></i></a>
+                        <a href="#" class="text-gray-400 hover:text-white transition"><i class="fab fa-linkedin"></i></a>
+                    </div>
+                </div>
+                <div>
+                    <h4 class="font-semibold mb-4">Szybkie linki</h4>
+                    <ul class="space-y-2">
+                        <li><a href="#/about" class="text-gray-400 hover:text-white transition"><i class="fas fa-arrow-right mr-2"></i> O nas</a></li>
+                        <li><a href="#/documents" class="text-gray-400 hover:text-white transition"><i class="fas fa-arrow-right mr-2"></i> Dokumenty</a></li>
+                        <li><a href="#/news" class="text-gray-400 hover:text-white transition"><i class="fas fa-arrow-right mr-2"></i> Wiadomości</a></li>
+                        <li><a href="#/contact" class="text-gray-400 hover:text-white transition"><i class="fas fa-arrow-right mr-2"></i> Kontakt</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="font-semibold mb-4">Nasze projekty</h4>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="text-gray-400 hover:text-white transition"><i class="fas fa-arrow-right mr-2"></i> Globish Academy</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition"><i class="fas fa-arrow-right mr-2"></i> EcoTech Initiative</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition"><i class="fas fa-arrow-right mr-2"></i> Digital Governance</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="font-semibold mb-4">Newsletter</h4>
+                    <p class="text-gray-400 mb-3">Zapisz się, aby otrzymywać najnowsze wiadomości.</p>
+                    <div class="flex" x-data="{ email: '' }">
+                        <input type="email" x-model="email" placeholder="Twój email" class="bg-gray-700 text-white px-4 py-2 rounded-l-lg focus:outline-none focus:ring-2 focus:ring-blue-500 w-full">
+                        <button class="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-r-lg transition"
+                                @click="$dispatch('newsletter-sign', { email }); email = '';">
+                            Zapisz
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="border-t border-gray-700 mt-8 pt-8 text-center text-gray-400">
+                <p>&copy; 2023 Republika Globo. Wszelkie prawa zastrzeżone.</p>
+            </div>
+        </div>
+    </footer>
+
+    <button x-show="scrollPosition > 300" @click="window.scrollTo({ top: 0, behavior: 'smooth' })"
+            class="fixed bottom-6 right-6 bg-blue-600 text-white p-3 rounded-full shadow-lg hover:bg-blue-700 transition-all duration-300 z-40">
+        <i class="fas fa-arrow-up"></i>
+    </button>
+
+    <!-- router script -->
+    <script src="js/router.js" defer></script>
+</body>
+</html>
+
+
+<==styles.css==>
+
+/* css/styles.css */
+:root {
+  --container-max: 1100px;
+}
+.container { max-width: var(--container-max); margin-left:auto; margin-right:auto; }
+
+.hero-pattern {
+    background-color: #f9fafb;
+    background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23667eea' fill-opacity='0.1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+}
+.dark .hero-pattern {
+    background-color: #111827;
+    background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23667eea' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+}
+
+.gradient-bg {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+.gradient-text {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+.card-hover { transition: all 0.3s ease; }
+.card-hover:hover { transform: translateY(-5px); box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1), 0 10px 10px -5px rgba(0,0,0,0.04); }
+
+.animate-delay-1 { animation-delay: 0.2s; }
+.animate-delay-2 { animation-delay: 0.4s; }
+.animate-delay-3 { animation-delay: 0.6s; }
+.animate-delay-4 { animation-delay: 0.8s; }
+.animate-delay-5 { animation-delay: 1s; }
+
+.page-content { opacity: 1; transition: opacity 0.25s ease; }
+header img { object-fit: cover; display:inline-block; }
+a { color: inherit; text-decoration: none; }
+
+/* Nowe style dla rozszerzeń */
+.timeline {
+    position: relative;
+    padding-left: 3rem;
+}
+
+.timeline::before {
+    content: '';
+    position: absolute;
+    left: 15px;
+    top: 0;
+    height: 100%;
+    width: 2px;
+    background: linear-gradient(to bottom, #667eea, #764ba2);
+}
+
+.timeline-item {
+    position: relative;
+    margin-bottom: 2rem;
+}
+
+.timeline-item::before {
+    content: '';
+    position: absolute;
+    left: -3rem;
+    top: 0.5rem;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: #667eea;
+    border: 3px solid white;
+    box-shadow: 0 0 0 3px #667eea;
+}
+
+.dark .timeline-item::before {
+    border-color: #1f2937;
+}
+
+.stat-card {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.stat-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 5px 10px -5px rgba(0, 0, 0, 0.04);
+}
+
+.language-badge {
+    display: inline-block;
+    padding: 0.25rem 0.75rem;
+    border-radius: 9999px;
+    font-size: 0.875rem;
+    font-weight: 500;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+}
+
+.flag-icon {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    object-fit: cover;
+    display: inline-block;
+    margin-right: 0.5rem;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.interactive-map {
+    position: relative;
+    overflow: hidden;
+    border-radius: 0.5rem;
+}
+
+.interactive-map img {
+    transition: transform 0.5s ease;
+}
+
+.interactive-map:hover img {
+    transform: scale(1.05);
+}
+
+.map-marker {
+    position: absolute;
+    width: 12px;
+    height: 12px;
+    background: #ef4444;
+    border-radius: 50%;
+    border: 2px solid white;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    transform: translate(-50%, -50%);
+    cursor: pointer;
+}
+
+.map-marker::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: rgba(239, 68, 68, 0.3);
+    transform: translate(-50%, -50%);
+    animation: pulse 2s infinite;
+}
+
+.ministry-card {
+    transition: all 0.3s ease;
+    border-left: 4px solid transparent;
+}
+
+.ministry-card:hover {
+    border-left-color: #667eea;
+    transform: translateX(5px);
+}
+
+.citizen-counter {
+    font-variant-numeric: tabular-nums;
+}
+
+.embassy-card {
+    border-left: 4px solid;
+    transition: all 0.3s ease;
+}
+
+.embassy-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+}
+
+/* Mobile / small fixes */
+@media (max-width: 768px) {
+  .container { padding-left: 1rem; padding-right: 1rem; }
+  .timeline { padding-left: 2rem; }
+  .timeline-item::before { left: -2.25rem; }
+}
+
+<==router.js==>
+
+/* js/router.js
+   Solidny hash-router, ładuje pages/*.json, cache w sessionStorage.
+   Obsługuje:
+    - pliki JSON z polem "content" (HTML string)
+    - lub pliki JSON z tablicą "items" (np. news) — renderuje listę
+   Zwraca czytelny błąd jeśli JSON jest niepoprawny (wskazuje plik).
+*/
+
+(function() {
+  const ROUTES = {
+    'home': 'pages/home.json',
+    'about': 'pages/about.json',
+    'values': 'pages/values.json',
+    'language': 'pages/language.json',
+    'forum': 'pages/forum.json',
+    'history': 'pages/history.json',
+    'documents': 'pages/documents.json',
+    'partners': 'pages/partners.json',
+    'news': 'pages/news.json',
+    'contact': 'pages/contact.json',
+    'join': 'pages/join.json'
+  };
+
+  const cachePrefix = 'globo_page_';
+
+  function resolveUrl(path) {
+    return new URL(path, location.href).href;
+  }
+
+  async function fetchJson(path) {
+    const url = resolveUrl(path);
+    const cacheKey = cachePrefix + url;
+
+    // Spróbuj z cache
+    try {
+      const raw = sessionStorage.getItem(cacheKey);
+      if (raw) {
+        return JSON.parse(raw);
+      }
+    } catch (e) {
+      // ignore parse/cache errors
+      console.warn('Cache read error', e);
+    }
+
+    const resp = await fetch(url, { cache: 'no-cache' });
+    if (!resp.ok) throw new Error('HTTP ' + resp.status + ' dla ' + path);
+
+    // sprawdź content-type
+    const ct = resp.headers.get('content-type') || '';
+    const text = await resp.text();
+
+    // jeśli content type mówi JSON, parsuj; jeśli nie, dalej spróbuj parsować.
+    try {
+      if (ct.includes('application/json') || ct.includes('text/json') || ct === '') {
+        const data = JSON.parse(text);
+        try { sessionStorage.setItem(cacheKey, JSON.stringify(data)); } catch(e){}
+        return data;
+      } else {
+        // mimo wszystko spróbuj parsować
+        const data = JSON.parse(text);
+        try { sessionStorage.setItem(cacheKey, JSON.stringify(data)); } catch(e){}
+        return data;
+      }
+    } catch (err) {
+      // jeśli parsowanie się wywali — rzuć szczegółowy błąd
+      const snippet = text.slice(0, 300).replace(/\n/g, '\\n');
+      const message = `Błąd parsowania JSON z ${path}: ${err.message}. Fragment pliku: ${snippet}`;
+      throw new Error(message);
+    }
+  }
+
+  function setTitle(t) {
+    if (t) document.title = t + ' — Republika Globo';
+  }
+
+  function renderHtml(html) {
+    const app = document.getElementById('app');
+    app.innerHTML = html;
+    // inicjuj ewentualne Alpine w dynamicznym fragmencie (jeśli funkcja dostępna)
+    if (window.Alpine && typeof window.Alpine.initTree === 'function') {
+      try { window.Alpine.initTree(app); } catch(e){ console.warn('Alpine init error', e); }
+    }
+    // obsłuż data-src dynamiczne sloty
+    processDynamicSlots(app);
+  }
+
+  async function processDynamicSlots(root) {
+    const nodes = root.querySelectorAll('[data-src]');
+    for (const el of nodes) {
+      const src = el.getAttribute('data-src');
+      if (!src) continue;
+      try {
+        const data = await fetchJson(src);
+        if (Array.isArray(data.items)) {
+          el.innerHTML = data.items.map(it => (
+            `<article class="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-sm">\
+               <h3 class="font-semibold mb-1">${escapeHtml(it.title)}</h3>\
+               <p class="text-sm text-gray-600 dark:text-gray-300">${escapeHtml(it.excerpt || '')}</p>\
+               <div class="mt-2 text-sm"><a href="#/news" class="text-blue-600 dark:text-blue-400 inline-flex items-center">Czytaj więcej <i class="fas fa-arrow-right ml-2"></i></a></div>\
+             </article>`
+          )).join('');
+        } else if (data.content) {
+          el.innerHTML = data.content;
+        } else {
+          el.innerHTML = '<div class="text-gray-500">Brak treści</div>';
+        }
+      } catch (e) {
+        el.innerHTML = `<div class="text-red-500">Błąd ładowania: ${escapeHtml(e.message)}</div>`;
+      }
+    }
+  }
+
+  function escapeHtml(str) {
+    if (typeof str !== 'string') return '';
+    return str.replace(/[&<>"']/g, function(m) {
+      return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":"&#39;"})[m];
+    });
+  }
+
+  async function loadRoute() {
+    const rawHash = location.hash || '#/home';
+    const key = (rawHash.replace(/^#\/?/, '') || 'home');
+    const path = ROUTES[key] || ROUTES['home'];
+    const app = document.getElementById('app');
+    app.innerHTML = '<div class="text-center text-gray-500 flex flex-col items-center justify-center min-h-[50vh]"><div class="globe-spinner mb-4"></div><p>Ładowanie treści...</p></div>';
+
+    try {
+      const data = await fetchJson(path);
+      setTitle(data.title || 'Republika Globo');
+
+      if (data.content) {
+        renderHtml(data.content);
+      } else if (Array.isArray(data.items)) {
+        // render list page (np. news)
+        const html = `<section class="grid md:grid-cols-2 gap-6">${data.items.map(it => `
+          <article class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md card-hover">
+            <h3 class="text-xl font-semibold mb-2">${escapeHtml(it.title)}</h3>
+            <div class="text-sm text-gray-500 mb-3 flex items-center">
+              <i class="far fa-calendar mr-2"></i>${escapeHtml(it.date || '')}
+              ${it.category ? `<span class="ml-3 px-2 py-1 bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 text-xs rounded-full">${escapeHtml(it.category)}</span>` : ''}
+            </div>
+            <p class="text-gray-600 dark:text-gray-300 mb-4">${escapeHtml(it.excerpt || '')}</p>
+            <a href="#/news/${it.id}" class="text-blue-600 dark:text-blue-400 inline-flex items-center font-medium hover:underline">
+              Czytaj więcej <i class="fas fa-arrow-right ml-2 text-xs"></i>
+            </a>
+          </article>
+        `).join('')}</section>`;
+        renderHtml(html);
+      } else {
+        renderHtml(`<div class="p-6 bg-white dark:bg-gray-800 rounded-lg">Brak treści w pliku: ${escapeHtml(path)}</div>`);
+      }
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      
+      // Re-inicjalizacja Fancybox po zmianie treści
+      if (window.Fancybox) {
+        Fancybox.bind("[data-fancybox]", {});
+      }
+    } catch (err) {
+      app.innerHTML = `<div class="text-red-600 p-6 bg-white dark:bg-gray-800 rounded-lg">Nie udało się załadować strony: ${escapeHtml(err.message)}</div>`;
+      console.error(err);
+    }
+  }
+
+  window.addEventListener('hashchange', loadRoute);
+  window.addEventListener('load', loadRoute);
+})();
+
+<==about.json==>
+
+{
+  "title": "O nas",
+  "content": "<section class=\"mb-12\">\n  <div class=\"hero-pattern rounded-2xl p-8 md:p-12 text-center mb-8\">\n    <h1 class=\"text-4xl md:text-5xl font-bold mb-4 gradient-text\">O Republice Globo</h1>\n    <p class=\"text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto\">Nowoczesna społeczność obywatelska budująca lepszą przyszłość poprzez innowacje, współpracę i zrównoważony rozwój.</p>\n  </div>\n\n  <div class=\"grid md:grid-cols-2 gap-8 mb-12\">\n    <div class=\"bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-md\">\n      <div class=\"w-16 h-16 bg-blue-100 dark:bg-blue-900 rounded-full flex items-center justify-center mb-4\">\n        <i class=\"fas fa-flag text-blue-600 dark:text-blue-400 text-2xl\"></i>\n      </div>\n      <h2 class=\"text-2xl font-bold mb-3\">Nasza Misja</h2>\n      <p class=\"text-gray-600 dark:text-gray-300\">Republika Globo powstała z idei stworzenia nowoczesnego, wirtualnego społeczeństwa opartego na zasadach wolności, równości i zrównoważonego rozwoju. Dążymy do budowy społeczności, która wykorzystuje technologię dla dobra wspólnego.</p>\n    </div>\n    \n    <div class=\"bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-md\">\n      <div class=\"w-16 h-16 bg-green-100 dark:bg-green-900 rounded-full flex items-center justify-center mb-4\">\n        <i class=\"fas fa-eye text-green-600 dark:text-green-400 text-2xl\"></i>\n      </div>\n      <h2 class=\"text-2xl font-bold mb-3\">Wizja Przyszłości</h2>\n      <p class=\"text-gray-600 dark:text-gray-300\">Chcemy być liderem innowacji społecznych i technologicznych, tworząc przestrzeń gdzie obywatele mogą wspólnie rozwijać projekty, dzielić się wiedzą i budować lepszą przyszłość dla kolejnych pokoleń.</p>\n    </div>\n  </div>\n\n  <div class=\"bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-md mb-12\">\n    <h2 class=\"text-3xl font-bold mb-6 text-center\">Nasze Cele Strategiczne</h2>\n    <div class=\"grid md:grid-cols-3 gap-6\">\n      <div class=\"text-center p-4 border border-gray-200 dark:border-gray-700 rounded-lg\">\n        <div class=\"w-12 h-12 bg-purple-100 dark:bg-purple-900 rounded-full flex items-center justify-center mx-auto mb-3\">\n          <i class=\"fas fa-users text-purple-600 dark:text-purple-400\"></i>\n        </div>\n        <h3 class=\"font-semibold mb-2\">Społeczność</h3>\n        <p class=\"text-sm text-gray-600 dark:text-gray-300\">Budowa aktywnej społeczności obywateli zaangażowanych w rozwój Republiki.</p>\n      </div>\n      \n      <div class=\"text-center p-4 border border-gray-200 dark:border-gray-700 rounded-lg\">\n        <div class=\"w-12 h-12 bg-yellow-100 dark:bg-yellow-900 rounded-full flex items-center justify-center mx-auto mb-3\">\n          <i class=\"fas fa-lightbulb text-yellow-600 dark:text-yellow-400\"></i>\n        </div>\n        <h3 class=\"font-semibold mb-2\">Innowacja</h3>\n        <p class=\"text-sm text-gray-600 dark:text-gray-300\">Wspieranie projektów innowacyjnych i rozwój nowych technologii.</p>\n      </div>\n      \n      <div class=\"text-center p-4 border border-gray-200 dark:border-gray-700 rounded-lg\">\n        <div class=\"w-12 h-12 bg-green-100 dark:bg-green-900 rounded-full flex items-center justify-center mx-auto mb-3\">\n          <i class=\"fas fa-handshake text-green-600 dark:text-green-400\"></i>\n        </div>\n        <h3 class=\"font-semibold mb-2\">Współpraca</h3>\n        <p class=\"text-sm text-gray-600 dark:text-gray-300\">Nawiązywanie partnerstw z innymi mikronacjami i organizacjami.</p>\n      </div>\n    </div>\n  </div>\n\n  <div class=\"bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-md\">\n    <h2 class=\"text-3xl font-bold mb-6 text-center\">Statystyki Republiki</h2>\n    <div class=\"grid grid-cols-2 md:grid-cols-4 gap-4 text-center\">\n      <div class=\"p-4\">\n        <div class=\"text-3xl font-bold text-blue-600 dark:text-blue-400 mb-1 citizen-counter\">1,247</div>\n        <div class=\"text-sm text-gray-600 dark:text-gray-300\">Obywateli</div>\n      </div>\n      \n      <div class=\"p-4\">\n        <div class=\"text-3xl font-bold text-green-600 dark:text-green-400 mb-1\">28</div>\n        <div class=\"text-sm text-gray-600 dark:text-gray-300\">Projektów</div>\n      </div>\n      \n      <div class=\"p-4\">\n        <div class=\"text-3xl font-bold text-purple-600 dark:text-purple-400 mb-1\">14</div>\n        <div class=\"text-sm text-gray-600 dark:text-gray-300\">Partnerstw</div>\n      </div>\n      \n      <div class=\"p-4\">\n        <div class=\"text-3xl font-bold text-yellow-600 dark:text-yellow-400 mb-1\">5</div>\n        <div class=\"text-sm text-gray-600 dark:text-gray-300\">Ministerstw</div>\n      </div>\n    </div>\n  </div>\n</section>"
+}
+
+<==contact.json==>
+
+{
+  "title": "Kontakt",
+  "content": "<section class=\"mb-12\">\n  <div class=\"hero-pattern rounded-2xl p-8 md:p-12 text-center mb-8\">\n    <h1 class=\"text-4xl md:text-5xl font-bold mb-4 gradient-text\">Kontakt z Republiką Globo</h1>\n    <p class=\"text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto\">Masz pytania, sugestie lub chcesz dołączyć do naszej społeczności? Skontaktuj się z nami!</p>\n  </div>\n\n  <div class=\"grid md:grid-cols-2 gap-8 mb-12\">\n    <div class=\"bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-md\">\n      <h2 class=\"text-2xl font-bold mb-6\">Formularz kontaktowy</h2>\n      \n      <form x-data=\"{ name: '', email: '', message: '', subject: '', isSubmitting: false, isSubmitted: false }\" \n            @submit.prevent=\"if(!isSubmitting && name && email && message) { \n              isSubmitting = true; \n              setTimeout(() => { isSubmitting = false; isSubmitted = true; }, 1500); \n            }\">\n        \n        <div class=\"mb-4\">\n          <label for=\"name\" class=\"block text-gray-700 dark:text-gray-300 mb-2\">Imię i nazwisko</label>\n          <input type=\"text\" id=\"name\" x-model=\"name\" class=\"w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-200\" required>\n        </div>\n        \n        <div class=\"mb-4\">\n          <label for=\"email\" class=\"block text-gray-700 dark:text-gray-300 mb-2\">Adres email</label>\n          <input type=\"email\" id=\"email\" x-model=\"email\" class=\"w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-200\" required>\n        </div>\n        \n        <div class=\"mb-4\">\n          <label for=\"subject\" class=\"block text-gray-700 dark:text-gray-300 mb-2\">Temat</label>\n          <select id=\"subject\" x-model=\"subject\" class=\"w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-200\" required>\n            <option value=\"\">Wybierz temat</option>\n            <option value=\"general\">Zapytanie ogólne</option>\n            <option value=\"join\">Chcę dołączyć</option>\n            <option value=\"partnership\">Współpraca</option>\n            <option value=\"technical\">Problem techniczny</option>\n            <option value=\"other\">Inne</option>\n          </select>\n        </div>\n        \n        <div class=\"mb-4\">\n          <label for=\"message\" class=\"block text-gray-700 dark:text-gray-300 mb-2\">Wiadomość</label>\n          <textarea id=\"message\" x-model=\"message\" rows=\"5\" class=\"w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-200\" required></textarea>\n        </div>\n        \n        <template x-if=\"isSubmitted\">\n          <div class=\"bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 p-4 rounded-lg mb-4 flex items-center\">\n            <i class=\"fas fa-check-circle mr-2\"></i>\n            <span>Twoja wiadomość została wysłana! Odpowiemy najszybciej jak to możliwe.</span>\n          </div>\n        </template>\n        \n        <button type=\"submit\" class=\"w-full bg-blue-600 hover:bg-blue-700 text-white py-3 px-4 rounded-lg transition flex items-center justify-center\" \n                :disabled=\"isSubmitting || !name || !email || !message || !subject\"\n                :class=\"{ 'opacity-50 cursor-not-allowed': isSubmitting || !name || !email || !message || !subject }\">\n          <template x-if=\"isSubmitting\">\n            <div class=\"flex items-center\">\n              <div class=\"w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin mr-2\"></div>\n              <span>Wysyłanie...</span>\n            </div>\n          </template>\n          <template x-if=\"!isSubmitting\">\n            <span>Wyślij wiadomość</span>\n          </template>\n        </button>\n      </form>\n    </div>\n    \n    <div class=\"bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-md\">\n      <h2 class=\"text-2xl font-bold mb-6\">Dane kontaktowe</h2>\n      \n      <div class=\"space-y-6\">\n        <div class=\"flex items-start\">\n          <div class=\"w-10 h-10 bg-blue-100 dark:bg-blue-900 rounded-full flex items-center justify-center mr-4\">\n            <i class=\"fas fa-envelope text-blue-600 dark:text-blue-400\"></i>\n          </div>\n          <div>\n            <h3 class=\"font-semibold\">Email</h3>\n            <p class=\"text-gray-600 dark:text-gray-300\">kontakt@republikaglobo.example</p>\n            <p class=\"text-gray-600 dark:text-gray-300\">info@republikaglobo.example</p>\n          </div>\n        </div>\n        \n        <div class=\"flex items-start\">\n          <div class=\"w-10 h-10 bg-green-100 dark:bg-green-900 rounded-full flex items-center justify-center mr-4\">\n            <i class=\"fas fa-comments text-green-600 dark:text-green-400\"></i>\n          </div>\n          <div>\n            <h3 class=\"font-semibold\">Forum i Discord</h3>\n            <p class=\"text-gray-600 dark:text-gray-300\">Dołącz do dyskusji na naszym forum lub serwerze Discord</p>\n            <a href=\"#/forum\" class=\"text-blue-600 dark:text-blue-400 hover:underline\">Przejdź do forum</a>\n          </div>\n        </div>\n        \n        <div class=\"flex items-start\">\n          <div class=\"w-10 h-10 bg-purple-100 dark:bg-purple-900 rounded-full flex items-center justify-center mr-4\">\n            <i class=\"fas fa-map-marker-alt text-purple-600 dark:text-purple-400\"></i>\n          </div>\n          <div>\n            <h3 class=\"font-semibold\">Siedziba Główna</h3>\n            <p class=\"text-gray-600 dark:text-gray-300\">Wirtualna Platforma Republiki Globo</p>\n            <p class=\"text-gray-600 dark:text-gray-300\">Dostęp 24/7 przez Internet</p>\n          </div>\n        </div>\n        \n        <div class=\"flex items-start\">\n          <div class=\"w-10 h-10 bg-yellow-100 dark:bg-yellow-900 rounded-full flex items-center justify-center mr-4\">\n            <i class=\"fas fa-clock text-yellow-600 dark:text-yellow-400\"></i>\n          </div>\n          <div>\n            <h3 class=\"font-semibold\">Godziny odpowiedzi</h3>\n            <p class=\"text-gray-600 dark:text-gray-300\">Poniedziałek - Piątek: 9:00 - 17:00</p>\n            <p class=\"text-gray-600 dark:text-gray-300\">Odpowiadamy w ciągu 24-48 godzin</p>\n          </div>\n        </div>\n      </div>\n      \n      <div class=\"mt-8 p-4 bg-gray-100 dark:bg-gray-700 rounded-lg\">\n        <h3 class=\"font-semibold mb-2\">Często zadawane pytania</h3>\n        <p class=\"text-gray-600 dark:text-gray-300 text-sm mb-3\">Zanim napiszesz, sprawdź naszą sekcję FAQ – może znajdziesz tam odpowiedź na swoje pytanie.</p>\n        <a href=\"#/faq\" class=\"text-blue-600 dark:text-blue-400 text-sm hover:underline inline-flex items-center\">\n          Przejdź do FAQ <i class=\"fas fa-arrow-right ml-1 text-xs\"></i>\n        </a>\n      </div>\n    </div>\n  </div>\n  \n  <div class=\"bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-md\">\n    <h2 class=\"text-2xl font-bold mb-6 text-center\">Zadzwoń do nas</h2>\n    <div class=\"text-center\">\n      <div class=\"inline-flex items-center bg-gray-100 dark:bg-gray-700 px-6 py-3 rounded-full mb-4\">\n        <i class=\"fas fa-phone-alt text-blue-600 dark:text-blue-400 mr-3\"></i>\n        <span class=\"text-xl font-mono\">+48 123 456 789</span>\n      </div>\n      <p class=\"text-gray-600 dark:text-gray-300\">Dostępny od poniedziałku do piątku w godzinach 9:00-17:00</p>\n    </div>\n  </div>\n</section>"
+}
+
+
+<==documents.json==>
+
+{
+  "title": "Dokumenty",
+  "content": "<section class=\"mb-12\">\n  <div class=\"hero-pattern rounded-2xl p-8 md:p-12 text-center mb-8\">\n    <h1 class=\"text-4xl md:text-5xl font-bold mb-4 gradient-text\">Dokumenty Republiki Globo</h1>\n    <p class=\"text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto\">Oficjalne dokumenty, ustawy i regulacje prawne stanowiące fundament naszej mikronacji.</p>\n  </div>\n\n  <div class=\"bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-md mb-8\">\n    <div class=\"flex flex-col md:flex-row md:items-center justify-between mb-6\">\n      <h2 class=\"text-2xl font-bold\">Konstytucja i Ustawy Główne</h2>\n      <div class=\"mt-3 md:mt-0\">\n        <button class=\"bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition flex items-center\">\n          <i class=\"fas fa-download mr-2\"></i> Pobierz wszystkie\n        </button>\n      </div>\n    </div>\n    \n    <div class=\"overflow-x-auto\">\n      <table class=\"w-full text-left\">\n        <thead class=\"bg-gray-100 dark:bg-gray-700\">\n          <tr>\n            <th class=\"p-3\">Nazwa dokumentu</th>\n            <th class=\"p-3\">Data przyjęcia</th>\n            <th class=\"p-3\">Status</th>\n            <th class=\"p-3\">Akcje</th>\n          </tr>\n        </thead>\n        <tbody>\n          <tr class=\"border-b border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700\">\n            <td class=\"p-3 font-medium\">Konstytucja Republiki Globo</td>\n            <td class=\"p-3\">2024-01-15</td>\n            <td class=\"p-3\"><span class=\"px-2 py-1 bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 text-xs rounded-full\">Obowiązuje</span></td>\n            <td class=\"p-3\">\n              <div class=\"flex space-x-2\">\n                <button class=\"text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-200\">\n                  <i class=\"fas fa-eye\"></i>\n                </button>\n                <button class=\"text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200\">\n                  <i class=\"fas fa-download\"></i>\n                </button>\n              </div>\n            </td>\n          </tr>\n          <tr class=\"border-b border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700\">\n            <td class=\"p-3 font-medium\">NBRP-0 – Ustawa o E-Obywatelstwie</td>\n            <td class=\"p-3\">2024-09-18</td>\n            <td class=\"p-3\"><span class=\"px-2 py-1 bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 text-xs rounded-full\">Obowiązuje</span></td>\n            <td class=\"p-3\">\n              <div class=\"flex space-x-2\">\n                <button class=\"text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-200\">\n                  <i class=\"fas fa-eye\"></i>\n                </button>\n                <button class=\"text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200\">\n                  <i class=\"fas fa-download\"></i>\n                </button>\n              </div>\n            </td>\n          </tr>\n          <tr class=\"border-b border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700\">\n            <td class=\"p-3 font-medium\">NBRP-1 – Ustawa o Standardach Dokumentów</td>\n            <td class=\"p-3\">2024-10-24</td>\n            <td class=\"p-3\"><span class=\"px-2 py-1 bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 text-xs rounded-full\">Obowiązuje</span></td>\n            <td class=\"p-3\">\n              <div class=\"flex space-x-2\">\n                <button class=\"text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-200\">\n                  <i class=\"fas fa-eye\"></i>\n                </button>\n                <button class=\"text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200\">\n                  <i class=\"fas fa-download\"></i>\n                </button>\n              </div>\n            </td>\n          </tr>\n          <tr class=\"border-b border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700\">\n            <td class=\"p-3 font-medium\">NBRP-2 – Ustawa o Wyborach</td>\n            <td class=\"p-3\">2024-10-24</td>\n            <td class=\"p-3\"><span class=\"px-2 py-1 bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 text-xs rounded-full\">Obowiązuje</span></td>\n            <td class=\"p-3\">\n              <div class=\"flex space-x-2\">\n                <button class=\"text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-200\">\n                  <i class=\"fas fa-eye\"></i>\n                </button>\n                <button class=\"text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200\">\n                  <i class=\"fas fa-download\"></i>\n                </button>\n              </div>\n            </td>\n          </tr>\n          <tr class=\"hover:bg-gray-50 dark:hover:bg-gray-700\">\n            <td class=\"p-3 font-medium\">NBRP-3 – Ustawa o Gospodarce Cyfrowej</td>\n            <td class=\"p-3\">2024-11-15</td>\n            <td class=\"p-3\"><span class=\"px-2 py-1 bg-yellow-100 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-200 text-xs rounded-full\">W przygotowaniu</span></td>\n            <td class=\"p-3\">\n              <div class=\"flex space-x-2\">\n                <button class=\"text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-200 opacity-50 cursor-not-allowed\">\n                  <i class=\"fas fa-eye\"></i>\n                </button>\n                <button class=\"text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 opacity-50 cursor-not-allowed\">\n                  <i class=\"fas fa-download\"></i>\n                </button>\n              </div>\n            </td>\n          </tr>\n        </tbody>\n      </table>\n    </div>\n  </div>\n  \n  <div class=\"grid md:grid-cols-2 gap-8 mb-8\">\n    <div class=\"bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-md\">\n      <h2 class=\"text-2xl font-bold mb-4\">Dokumenty Programowe</h2>\n      \n      <div class=\"space-y-4\">\n        <div class=\"flex justify-between items-center p-3 border border-gray-200 dark:border-gray-700 rounded-lg\">\n          <div>\n            <h3 class=\"font-medium\">Strategia Rozwoju 2024-2027</h3>\n            <p class=\"text-sm text-gray-600 dark:text-gray-300\">PDF • 2.3 MB</p>\n          </div>\n          <button class=\"text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-200\">\n            <i class=\"fas fa-download\"></i>\n          </button>\n        </div>\n        \n        <div class=\"flex justify-between items-center p-3 border border-gray-200 dark:border-gray-700 rounded-lg\">\n          <div>\n            <h3 class=\"font-medium\">Program Edukacji Obywatelskiej</h3>\n            <p class=\"text-sm text-gray-600 dark:text-gray-300\">PDF • 1.7 MB</p>\n          </div>\n          <button class=\"text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-200\">\n            <i class=\"fas fa-download\"></i>\n          </button>\n        </div>\n        \n        <div class=\"flex justify-between items-center p-3 border border-gray-200 dark:border-gray-700 rounded-lg\">\n          <div>\n            <h3 class=\"font-medium\">Plan Współpracy Międzynarodowej</h3>\n            <p class=\"text-sm text-gray-600 dark:text-gray-300\">PDF • 1.9 MB</p>\n          </div>\n          <button class=\"text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-200\">\n            <i class=\"fas fa-download\"></i>\n          </button>\n        </div>\n      </div>\n    </div>\n    \n    <div class=\"bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-md\">\n      <h2 class=\"text-2xl font-bold mb-4\">Formularze i Wnioski</h2>\n      \n      <div class=\"space-y-4\">\n        <div class=\"flex justify-between items-center p-3 border border-gray-200 dark:border-gray-700 rounded-lg\">\n          <div>\n            <h3 class=\"font-medium\">Wniosek o Nadanie Obywatelstwa</h3>\n            <p class=\"text-sm text-gray-600 dark:text-gray-300\">DOCX • 0.1 MB</p>\n          </div>\n          <button class=\"text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-200\">\n            <i class=\"fas fa-download\"></i>\n          </button>\n        </div>\n        \n        <div class=\"flex justify-between items-center p-3 border border-gray-200 dark:border-gray-700 rounded-lg\">\n          <div>\n            <h3 class=\"font-medium\">Formularz Rejestracji Działalności</h3>\n            <p class=\"text-sm text-gray-600 dark:text-gray-300\">DOCX • 0.2 MB</p>\n          </div>\n          <button class=\"text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-200\">\n            <i class=\"fas fa-download\"></i>\n          </button>\n        </div>\n        \n        <div class=\"flex justify-between items-center p-3 border border-gray-200 dark:border-gray-700 rounded-lg\">\n          <div>\n            <h3 class=\"font-medium\">Wniosek o Dotację Projektową</h3>\n            <p class=\"text-sm text-gray-600 dark:text-gray-300\">DOCX • 0.3 MB</p>\n          </div>\n          <button class=\"text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-200\">\n            <i class=\"fas fa-download\"></i>\n          </button>\n        </div>\n      </div>\n    </div>\n  </div>\n  \n  <div class=\"bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-md\">\n    <h2 class=\"text-2xl font-bold mb-4\">Archwium Dokumentów</h2>\n    <p class=\"text-gray-600 dark:text-gray-300 mb-4\">Dokumenty historyczne i archiwalne wersje aktów prawnych.</p>\n    \n    <div class=\"bg-gray-100 dark:bg-gray-700 p-4 rounded-lg\">\n      <div class=\"flex items-center\">\n        <i class=\"fas fa-info-circle text-blue-600 dark:text-blue-400 mr-2\"></i>\n        <p class=\"text-sm text-gray-600 dark:text-gray-300\">Dostęp do archiwum wymaga uprawnień archiwisty. Skontaktuj się z administratorem, aby uzyskać dostęp.</p>\n      </div>\n    </div>\n  </div>\n</section>"
+}
+
+
+<==history.json==>
+
+{
+  "title": "Historia",
+  "content": "<section class=\"mb-12\">\n  <div class=\"hero-pattern rounded-2xl p-8 md:p-12 text-center mb-8\">\n    <h1 class=\"text-4xl md:text-5xl font-bold mb-4 gradient-text\">Historia Republiki Globo</h1>\n    <p class=\"text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto\">Poznaj naszą drogę od pomysłu do dynamicznie rozwijającej się mikronacji.</p>\n  </div>\n\n  <div class=\"bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-md mb-8\">\n    <h2 class=\"text-2xl font-bold mb-6\">Kalendarium Wydarzeń</h2>\n    \n    <div class=\"timeline\">\n      <div class=\"timeline-item\">\n        <h3 class=\"text-xl font-semibold mb-2\">Powstanie Koncepcji</h3>\n        <div class=\"text-sm text-gray-500 mb-2\">15 stycznia 2023</div>\n        <p class=\"text-gray-600 dark:text-gray-300\">Grupa entuzjastów mikronacji stworzyła koncepcję Republiki Globo - nowoczesnego, wirtualnego państwa opartego na zasadach demokracji, innowacji i współpracy międzynarodowej.</p>\n      </div>\n      \n      <div class=\"timeline-item\">\n        <h3 class=\"text-xl font-semibold mb-2\">Powstanie Rządu Tymczasowego</h3>\n        <div class=\"text-sm text-gray-500 mb-2\">20 marca 2023</div>\n        <p class=\"text-gray-600 dark:text-gray-300\">Utworzono pierwszy rząd tymczasowy, który opracował projekt konstytucji i podstawy prawne funkcjonowania Republiki.</p>\n      </div>\n      \n      <div class=\"timeline-item\">\n        <h3 class=\"text-xl font-semibold mb-2\">Przyjęcie Konstytucji</h3>\n        <div class=\"text-sm text-gray-500 mb-2\">15 stycznia 2024</div>\n        <p class=\"text-gray-600 dark:text-gray-300\">Obywatele Republiki Globo w powszechnym referendum przyjęli Konstytucję, stanowiącą fundament prawny naszego państwa.</p>\n      </div>\n      \n      <div class=\"timeline-item\">\n        <h3 class=\"text-xl font-semibold mb-2\">Pierwsze Wybory Parlamentarne</h3>\n        <div class=\"text-sm text-gray-500 mb-2\">10 lutego 2024</div>\n        <p class=\"text-gray-600 dark:text-gray-300\">Przeprowadzono pierwsze demokratyczne wybory do parlamentu Republiki Globo. Frekwencja wyniosła 78%.</p>\n      </div>\n      \n      <div class=\"timeline-item\">\n        <h3 class=\"text-xl font-semibold mb-2\">Uruchomienie Platformy E-Obywatel</h3>\n        <div class=\"text-sm text-gray-500 mb-2\">18 września 2024</div>\n        <p class=\"text-gray-600 dark:text-gray-300\">Oddano do użytku nowoczesną platformę e-obywatel, umożliwiającą załatwianie spraw urzędowych online.</p>\n      </div>\n      \n      <div class=\"timeline-item\">\n        <h3 class=\"text-xl font-semibold mb-2\">Nawiązanie Pierwszego Partnerstwa</h3>\n        <div class=\"text-sm text-gray-500 mb-2\">23 października 2024</div>\n        <p class=\"text-gray-600 dark:text-gray-300\">Podpisano porozumienie o współpracy z Republiką Gneżeńską - pierwsze międzynarodowe partnerstwo Republiki Globo.</p>\n      </div>\n      \n      <div class=\"timeline-item\">\n        <h3 class=\"text-xl font-semibold mb-2\">Uruchomienie Programu Globish Academy</h3>\n        <div class=\"text-sm text-gray-500 mb-2\">1 lutego 2025</div>\n        <p class=\"text-gray-600 dark:text-gray-300\">Rozpoczęto program edukacyjny Globish Academy, promujący naukę naszego oficjalnego języka.</p>\n      </div>\n    </div>\n  </div>\n  \n  <div class=\"grid md:grid-cols-2 gap-8 mb-8\">\n    <div class=\"bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-md\">\n      <h2 class=\"text-2xl font-bold mb-6\">Założyciele Republiki</h2>\n      \n      <div class=\"space-y-6\">\n        <div class=\"flex items-start\">\n          <div class=\"w-16 h-16 bg-blue-100 dark:bg-blue-900 rounded-full flex items-center justify-center mr-4 flex-shrink-0\">\n            <span class=\"font-semibold text-blue-600 dark:text-blue-400\">JD</span>\n          </div>\n          <div>\n            <h3 class=\"font-semibold\">Jan Dobrowolski</h3>\n            <p class=\"text-sm text-gray-500 mb-2\">Pierwszy Prezydent Republiki</p>\n            <p class=\"text-gray-600 dark:text-gray-300 text-sm\">Pomysłodawca i główny architekt koncepcji Republiki Globo. Sprawował urząd Prezydenta w latach 2023-2024.</p>\n          </div>\n        </div>\n        \n        <div class=\"flex items-start\">\n          <div class=\"w-16 h-16 bg-green-100 dark:bg-green-900 rounded-full flex items-center justify-center mr-4 flex-shrink-0\">\n            <span class=\"font-semibold text-green-600 dark:text-green-400\">AN</span>\n          </div>\n          <div>\n            <h3 class=\"font-semibold\">Anna Nowak</h3>\n            <p class=\"text-sm text-gray-500 mb-2\">Pierwsza Premier</p>\n            <p class=\"text-gray-600 dark:text-gray-300 text-sm\">Architektka systemu prawnego i gospodarczego Republiki. Sprawowała urząd Premier w latach 2023-2024.</p>\n          </div>\n        </div>\n        \n        <div class=\"flex items-start\">\n          <div class=\"w-16 h-16 bg-purple-100 dark:bg-purple-900 rounded-full flex items-center justify-center mr-4 flex-shrink-0\">\n            <span class=\"font-semibold text-purple-600 dark:text-purple-400\">PM</span>\n          </div>\n          <div>\n            <h3 class=\"font-semibold\">Piotr Malinowski</h3>\n            <p class=\"text-sm text-gray-500 mb-2\">Minister Technologii</p>\n            <p class=\"text-gray-600 dark:text-gray-300 text-sm\">Twórca platformy e-obywatel i infrastruktury technologicznej Republiki. Sprawuje urząd od 2023 roku.</p>\n          </div>\n        </div>\n      </div>\n    </div>\n    \n    <div class=\"bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-md\">\n      <h2 class=\"text-2xl font-bold mb-6\">Historyczne Dokumenty</h2>\n      \n      <div class=\"space-y-4\">\n        <div class=\"flex items-center p-3 border border-gray-200 dark:border-gray-700 rounded-lg\">\n          <div class=\"w-10 h-10 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center mr-3\">\n            <i class=\"fas fa-file-pdf text-red-500\"></i>\n          </div>\n          <div class=\"flex-1\">\n            <h3 class=\"font-medium\">Deklaracja Niepodległości</h3>\n            <p class=\"text-xs text-gray-500\">15 stycznia 2023 • PDF • 0.2 MB</p>\n          </div>\n          <button class=\"text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-200\">\n            <i class=\"fas fa-download\"></i>\n          </button>\n        </div>\n        \n        <div class=\"flex items-center p-3 border border-gray-200 dark:border-gray-700 rounded-lg\">\n          <div class=\"w-10 h-10 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center mr-3\">\n            <i class=\"fas fa-file-pdf text-red-500\"></i>\n          </div>\n          <div class=\"flex-1\">\n            <h3 class=\"font-medium\">Projekt Konstytucji (wersja robocza)</h3>\n            <p class=\"text-xs text-gray-500\">10 maja 2023 • PDF • 1.5 MB</p>\n          </div>\n          <button class=\"text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-200\">\n            <i class=\"fas fa-download\"></i>\n          </button>\n        </div>\n        \n        <div class=\"flex items-center p-3 border border-gray-200 dark:border-gray-700 rounded-lg\">\n          <div class=\"w-10 h-10 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center mr-3\">\n            <i class=\"fas fa-file-pdf text-red-500\"></i>\n          </div>\n          <div class=\"flex-1\">\n            <h3 class=\"font-medium\">Protokół Założycielski</h3>\n            <p class=\"text-xs text-gray-500\">20 marca 2023 • PDF • 0.8 MB</p>\n          </div>\n          <button class=\"text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-200\">\n            <i class=\"fas fa-download\"></i>\n          </button>\n        </div>\n        \n        <div class=\"flex items-center p-3 border border-gray-200 dark:border-gray-700 rounded-lg\">\n          <div class=\"w-10 h-10 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center mr-3\">\n            <i class=\"fas fa-file-image text-blue-500\"></i>\n          </div>\n          <div class=\"flex-1\">\n            <h3 class=\"font-medium\">Pierwsze Obrady Parlamentu</h3>\n            <p class=\"text-xs text-gray-500\">15 lutego 2024 • JPG • 2.1 MB</p>\n          </div>\n          <button class=\"text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-200\">\n            <i class=\"fas fa-download\"></i>\n          </button>\n        </div>\n      </div>\n    </div>\n  </div>\n  \n  <div class=\"bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-md\">\n    <h2 class=\"text-2xl font-bold mb-6\">Muzeum Republiki Globo</h2>\n    \n    <div class=\"grid md:grid-cols-2 gap-6\">\n      <div>\n        <div class=\"bg-gray-200 dark:bg-gray-700 h-48 rounded-lg mb-4 flex items-center justify-center\">\n          <i class=\"fas fa-image text-4xl text-gray-400\"></i>\n        </div>\n        <h3 class=\"font-semibold mb-2\">Wirtualne Muzeum</h3>\n        <p class=\"text-gray-600 dark:text-gray-300 text-sm\">Odwiedź nasze wirtualne muzeum, gdzie prezentujemy historyczne artefakty, dokumenty i multimedia związane z powstaniem i rozwojem Republiki.</p>\n        <a href=\"#\" class=\"inline-flex items-center text-blue-600 dark:text-blue-400 text-sm hover:underline mt-2\">\n          Odwiedź muzeum <i class=\"fas fa-arrow-right ml-1 text-xs\"></i>\n        </a>\n      </div>\n      \n      <div>\n        <div class=\"bg-gray-200 dark:bg-gray-700 h-48 rounded-lg mb-4 flex items-center justify-center\">\n          <i class=\"fas fa-video text-4xl text-gray-400\"></i>\n        </div>\n        <h3 class=\"font-semibold mb-2\">Archiwum Multimedialne</h3>\n        <p class=\"text-gray-600 dark:text-gray-300 text-sm\">Zobacz nagrania z ważnych wydarzeń w historii Republiki, including obrad parlamentu, ceremonii zaprzysiężenia i ważnych przemówień.</p>\n        <a href=\"#\" class=\"inline-flex items-center text-blue-600 dark:text-blue-400 text-sm hover:underline mt-2\">\n          Przeglądaj archiwa <i class=\"fas fa-arrow-right ml-1 text-xs\"></i>\n        </a>\n      </div>\n    </div>\n  </div>\n</section>"
+}
+
+<==home.json==>
+
+{
+  "title": "Strona główna",
+  "content": "<section class=\"mb-12\">\n  <div class=\"hero-pattern rounded-2xl p-8 md:p-12 text-center mb-8\">\n    <h1 class=\"text-4xl md:text-5xl font-bold mb-4 gradient-text\">Republika Globo</h1>\n    <p class=\"text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto\">Nowoczesna mikronacja budująca przyszłość opartą na wolności, innowacji i współpracy.</p>\n    \n    <div class=\"mt-8 flex flex-col sm:flex-row justify-center gap-4\">\n      <a href=\"#/join\" class=\"bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg transition transform hover:-translate-y-1 flex items-center justify-center\">\n        <i class=\"fas fa-user-plus mr-2\"></i> Dołącz do nas\n      </a>\n      <a href=\"#/about\" class=\"bg-white dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-800 dark:text-gray-200 px-6 py-3 rounded-lg transition border border-gray-300 dark:border-gray-600 transform hover:-translate-y-1 flex items-center justify-center\">\n        <i class=\"fas fa-info-circle mr-2\"></i> Dowiedz się więcej\n      </a>\n    </div>\n  </div>\n\n  <div class=\"grid md:grid-cols-3 gap-8 mb-12\">\n    <div class=\"bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-md text-center card-hover\">\n      <div class=\"w-16 h-16 bg-blue-100 dark:bg-blue-900 rounded-full flex items-center justify-center mx-auto mb-4\">\n        <i class=\"fas fa-users text-blue-600 dark:text-blue-400 text-2xl\"></i>\n      </div>\n      <h2 class=\"text-xl font-bold mb-3\">Społeczność</h2>\n      <p class=\"text-gray-600 dark:text-gray-300\">Dołącz do dynamicznej społeczności obywateli zaangażowanych w rozwój naszej mikronacji.</p>\n      <a href=\"#/forum\" class=\"inline-block mt-4 text-blue-600 dark:text-blue-400 hover:underline\">\n        Poznaj naszą społeczność <i class=\"fas fa-arrow-right ml-1\"></i>\n      </a>\n    </div>\n    \n    <div class=\"bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-md text-center card-hover\">\n      <div class=\"w-16 h-16 bg-green-100 dark:bg-green-900 rounded-full flex items-center justify-center mx-auto mb-4\">\n        <i class=\"fas fa-lightbulb text-green-600 dark:text-green-400 text-2xl\"></i>\n      </div>\n      <h2 class=\"text-xl font-bold mb-3\">Innowacje</h2>\n      <p class=\"text-gray-600 dark:text-gray-300\">Odkryj nasze projekty technologiczne i innowacyjne rozwiązania dla lepszej przyszłości.</p>\n      <a href=\"#/projects\" class=\"inline-block mt-4 text-blue-600 dark:text-blue-400 hover:underline\">\n        Zobacz projekty <i class=\"fas fa-arrow-right ml-1\"></i>\n      </a>\n    </div>\n    \n    <div class=\"bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-md text-center card-hover\">\n      <div class=\"w-16 h-16 bg-purple-100 dark:bg-purple-900 rounded-full flex items-center justify-center mx-auto mb-4\">\n        <i class=\"fas fa-handshake text-purple-600 dark:text-purple-400 text-2xl\"></i>\n      </div>\n      <h2 class=\"text-xl font-bold mb-3\">Współpraca</h2>\n      <p class=\"text-gray-600 dark:text-gray-300\">Nawiążemy partnerstwa z innymi mikronacjami i organizacjami o podobnych values.</p>\n      <a href=\"#/partners\" class=\"inline-block mt-4 text-blue-600 dark:text-blue-400 hover:underline\">\n        Nasi partnerzy <i class=\"fas fa-arrow-right ml-1\"></i>\n      </a>\n    </div>\n  </div>\n\n  <div class=\"bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-md mb-12\">\n    <h2 class=\"text-3xl font-bold mb-6 text-center\">Najnowsze Wydarzenia</h2>\n    \n    <div class=\"grid md:grid-cols-2 gap-6 mb-6\" data-src=\"pages/news.json\">\n      <!-- Zawartość wczytywana dynamicznie z news.json -->\n    </div>\n    \n    <div class=\"text-center\">\n      <a href=\"#/news\" class=\"inline-flex items-center text-blue-600 dark:text-blue-400 hover:underline\">\n        Zobacz wszystkie wiadomości <i class=\"fas fa-arrow-right ml-2\"></i>\n      </a>\n    </div>\n  </div>\n\n  <div class=\"grid md:grid-cols-2 gap-8 mb-12\">\n    <div class=\"bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-md\">\n      <h2 class=\"text-2xl font-bold mb-4\">Dołącz do Republiki Globo</h2>\n      <p class=\"text-gray-600 dark:text-gray-300 mb-4\">Zostań obywatelem naszej dynamicznie rozwijającej się mikronacji i wspólnie budujmy lepszą przyszłość.</p>\n      \n      <ul class=\"space-y-2 mb-6\">\n        <li class=\"flex items-center\">\n          <i class=\"fas fa-check-circle text-green-500 mr-2\"></i>\n          <span>Pełne prawo do udziału w życiu publicznym</span>\n        </li>\n        <li class=\"flex items-center\">\n          <i class=\"fas fa-check-circle text-green-500 mr-2\"></i>\n          <span>Możliwość uczestnictwa w projektach i inicjatywach</span>\n        </li>\n        <li class=\"flex items-center\">\n          <i class=\"fas fa-check-circle text-green-500 mr-2\"></i>\n          <span>Dostęp do platformy e-obywatel</span>\n        </li>\n        <li class=\"flex items-center\">\n          <i class=\"fas fa-check-circle text-green-500 mr-2\"></i>\n          <span>Możliwość głosowania i kandydowania</span>\n        </li>\n      </ul>\n      \n      <a href=\"#/join\" class=\"bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg transition inline-flex items-center\">\n        <i class=\"fas fa-user-plus mr-2\"></i> Złóż wniosek\n      </a>\n    </div>\n    \n    <div class=\"bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-md\">\n      <h2 class=\"text-2xl font-bold mb-4\">Oficjalny Język - Globish</h2>\n      <p class=\"text-gray-600 dark:text-gray-300 mb-4\">Globish to uproszczona forma języka angielskiego, zaprojektowana jako lingua franca Republiki Globo.</p>\n      \n      <div class=\"bg-gray-100 dark:bg-gray-700 p-4 rounded-lg mb-4\">\n        <p class=\"text-sm italic text-gray-600 dark:text-gray-300\">\n          \"Welcome to Globo Republic! We believe in freedom, innovation and cooperation. Join us in building better future together.\"\n        </p>\n      </div>\n      \n      <a href=\"#/language\" class=\"text-blue-600 dark:text-blue-400 hover:underline inline-flex items-center\">\n        Dowiedz się więcej o Globish <i class=\"fas fa-arrow-right ml-2\"></i>\n      </a>\n    </div>\n  </div>\n\n  <div class=\"bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-md\">\n    <h2 class=\"text-3xl font-bold mb-6 text-center\">Nasza Społeczność w Liczbach</h2>\n    \n    <div class=\"grid grid-cols-2 md:grid-cols-4 gap-4 text-center\">\n      <div class=\"p-4\">\n        <div class=\"text-3xl font-bold text-blue-600 dark:text-blue-400 mb-1 citizen-counter\">1,247</div>\n        <div class=\"text-sm text-gray-600 dark:text-gray-300\">Obywateli</div>\n      </div>\n      \n      <div class=\"p-4\">\n        <div class=\"text-3xl font-bold text-green-600 dark:text-green-400 mb-1\">28</div>\n        <div class=\"text-sm text-gray-600 dark:text-gray-300\">Projektów</div>\n      </div>\n      \n      <div class=\"p-4\">\n        <div class=\"text-3xl font-bold text-purple-600 dark:text-purple-400 mb-1\">14</div>\n        <div class=\"text-sm text-gray-600 dark:text-gray-300\">Partnerstw</div>\n      </div>\n      \n      <div class=\"p-4\">\n        <div class=\"text-3xl font-bold text-yellow-600 dark:text-yellow-400 mb-1\">5</div>\n        <div class=\"text-sm text-gray-600 dark:text-gray-300\">Ministerstw</div>\n      </div>\n    </div>\n  </div>\n</section>"
+}
+
+<==join.json==>
+
+{
+  "title": "Dołącz",
+  "content": "<section class=\"mb-12\">\n  <div class=\"hero-pattern rounded-2xl p-8 md:p-12 text-center mb-8\">\n    <h1 class=\"text-4xl md:text-5xl font-bold mb-4 gradient-text\">Dołącz do Republiki Globo</h1>\n    <p class=\"text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto\">Zostań obywatelem naszej dynamicznie rozwijającej się mikronacji i wspólnie budujmy lepszą przyszłość.</p>\n  </div>\n\n  <div class=\"grid md:grid-cols-2 gap-8 mb-12\">\n    <div class=\"bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-md\">\n      <h2 class=\"text-2xl font-bold mb-6\">Korzyści z Obywatelstwa</h2>\n      \n      <div class=\"space-y-4\">\n        <div class=\"flex items-start\">\n          <div class=\"w-10 h-10 bg-blue-100 dark:bg-blue-900 rounded-full flex items-center justify-center mr-4 mt-1\">\n            <i class=\"fas fa-vote-yea text-blue-600 dark:text-blue-400\"></i>\n          </div>\n          <div>\n            <h3 class=\"font-semibold\">Prawo do głosowania</h3>\n            <p class=\"text-gray-600 dark:text-gray-300 text-sm\">Uczestnicz w wyborach i referendach, wpływaj na przyszłość Republiki.</p>\n          </div>\n        </div>\n        \n        <div class=\"flex items-start\">\n          <div class=\"w-10 h-10 bg-green-100 dark:bg-green-900 rounded-full flex items-center justify-center mr-4 mt-1\">\n            <i class=\"fas fa-briefcase text-green-600 dark:text-green-400\"></i>\n          </div>\n          <div>\n            <h3 class=\"font-semibold\">Możliwość kandydowania</h3>\n            <p class=\"text-gray-600 dark:text-gray-300 text-sm\">Zostań parlamentarzystą lub urzędnikiem, realizuj swoje pomysły.</p>\n          </div>\n        </div>\n        \n        <div class=\"flex items-start\">\n          <div class=\"w-10 h-10 bg-purple-100 dark:bg-purple-900 rounded-full flex items-center justify-center mr-4 mt-1\">\n            <i class=\"fas fa-project-diagram text-purple-600 dark:text-purple-400\"></i>\n          </div>\n          <div>\n            <h3 class=\"font-semibold\">Udział w projektach</h3>\n            <p class=\"text-gray-600 dark:text-gray-300 text-sm\">Dołącz do istniejących projektów lub zainicjuj własne z wsparciem społeczności.</p>\n          </div>\n        </div>\n        \n        <div class=\"flex items-start\">\n          <div class=\"w-10 h-10 bg-yellow-100 dark:bg-yellow-900 rounded-full flex items-center justify-center mr-4 mt-1\">\n            <i class=\"fas fa-passport text-yellow-600 dark:text-yellow-400\"></i>\n          </div>\n          <div>\n            <h3 class=\"font-semibold\">Obywatelstwo honorowe</h3>\n            <p class=\"text-gray-600 dark:text-gray-300 text-sm\">Otrzymaj certyfikat obywatelstwa oraz wirtualny dokument tożsamości.</p>\n          </div>\n        </div>\n        \n        <div class=\"flex items-start\">\n          <div class=\"w-10 h-10 bg-red-100 dark:bg-red-900 rounded-full flex items-center justify-center mr-4 mt-1\">\n            <i class=\"fas fa-handshake text-red-600 dark:text-red-400\"></i>\n          </div>\n          <div>\n            <h3 class=\"font-semibold\">Networking</h3>\n            <p class=\"text-gray-600 dark:text-gray-300 text-sm\">Nawiąż kontakty z ludźmi z całego świata, którzy dzielą twoje pasje.</p>\n          </div>\n        </div>\n      </div>\n    </div>\n    \n    <div class=\"bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-md\">\n      <h2 class=\"text-2xl font-bold mb-6\">Złóż Wniosek</h2>\n      \n      <form x-data=\"{ name: '', email: '', age: '', motivation: '', acceptTerms: false, isSubmitting: false, isSubmitted: false }\" \n            @submit.prevent=\"if(!isSubmitting && name && email && age && motivation && acceptTerms) { \n              isSubmitting = true; \n              setTimeout(() => { isSubmitting = false; isSubmitted = true; }, 2000); \n            }\">\n        \n        <div class=\"mb-4\">\n          <label for=\"name\" class=\"block text-gray-700 dark:text-gray-300 mb-2\">Imię i nazwisko</label>\n          <input type=\"text\" id=\"name\" x-model=\"name\" class=\"w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-200\" required>\n        </div>\n        \n        <div class=\"mb-4\">\n          <label for=\"email\" class=\"block text-gray-700 dark:text-gray-300 mb-2\">Adres email</label>\n          <input type=\"email\" id=\"email\" x-model=\"email\" class=\"w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-200\" required>\n        </div>\n        \n        <div class=\"mb-4\">\n          <label for=\"age\" class=\"block text-gray-700 dark:text-gray-300 mb-2\">Wiek</label>\n          <input type=\"number\" id=\"age\" x-model=\"age\" min=\"13\" class=\"w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-200\" required>\n        </div>\n        \n        <div class=\"mb-4\">\n          <label for=\"motivation\" class=\"block text-gray-700 dark:text-gray-300 mb-2\">Dlaczego chcesz dołączyć? (min. 50 znaków)</label>\n          <textarea id=\"motivation\" x-model=\"motivation\" rows=\"4\" class=\"w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-200\" required></textarea>\n          <div class=\"text-xs text-gray-500 mt-1\" x-text=\"`${motivation.length}/50 znaków`\"></div>\n        </div>\n        \n        <div class=\"mb-4\">\n          <label class=\"flex items-start\">\n            <input type=\"checkbox\" x-model=\"acceptTerms\" class=\"mt-1 mr-2\">\n            <span class=\"text-gray-700 dark:text-gray-300 text-sm\">Akceptuję <a href=\"#/documents\" class=\"text-blue-600 dark:text-blue-400 hover:underline\">Regulamin</a> i <a href=\"#/documents\" class=\"text-blue-600 dark:text-blue-400 hover:underline\">Politykę Prywatności</a> Republiki Globo</span>\n          </label>\n        </div>\n        \n        <template x-if=\"isSubmitted\">\n          <div class=\"bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 p-4 rounded-lg mb-4 flex items-center\">\n            <i class=\"fas fa-check-circle mr-2\"></i>\n            <span>Twój wniosek został wysłany! Otrzymasz odpowiedź w ciągu 7 dni roboczych.</span>\n          </div>\n        </template>\n        \n        <button type=\"submit\" class=\"w-full bg-blue-600 hover:bg-blue-700 text-white py-3 px-4 rounded-lg transition flex items-center justify-center\" \n                :disabled=\"isSubmitting || !name || !email || !age || motivation.length < 50 || !acceptTerms\"\n                :class=\"{ 'opacity-50 cursor-not-allowed': isSubmitting || !name || !email || !age || motivation.length < 50 || !acceptTerms }\">\n          <template x-if=\"isSubmitting\">\n            <div class=\"flex items-center\">\n              <div class=\"w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin mr-2\"></div>\n              <span>Wysyłanie...</span>\n            </div>\n          </template>\n          <template x-if=\"!isSubmitting\">\n            <span>Złóż wniosek o obywatelstwo</span>\n          </template>\n        </button>\n      </form>\n    </div>\n  </div>\n  \n  <div class=\"bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-md mb-8\">\n    <h2 class=\"text-2xl font-bold mb-6\">Proces Przyznawania Obywatelstwa</h2>\n    \n    <div class=\"grid md:grid-cols-4 gap-4 text-center\">\n      <div>\n        <div class=\"w-12 h-12 bg-blue-100 dark:bg-blue-900 rounded-full flex items-center justify-center mx-auto mb-3\">\n          <span class=\"font-semibold text-blue-600 dark:text-blue-400\">1</span>\n        </div>\n        <h3 class=\"font-semibold mb-1\">Złożenie wniosku</h3>\n        <p class=\"text-gray-600 dark:text-gray-300 text-sm\">Wypełnij formularz zgłoszeniowy i opisz swoją motywację.</p>\n      </div>\n      \n      <div>\n        <div class=\"w-12 h-12 bg-green-100 dark:bg-green-900 rounded-full flex items-center justify-center mx-auto mb-3\">\n          <span class=\"font-semibold text-green-600 dark:text-green-400\">2</span>\n        </div>\n        <h3 class=\"font-semibold mb-1\">Weryfikacja</h3>\n        <p class=\"text-gray-600 dark:text-gray-300 text-sm\">Nasz zespół sprawdzi Twoje zgłoszenie pod kątem zgodności z wymaganiami.</p>\n      </div>\n      \n      <div>\n        <div class=\"w-12 h-12 bg-purple-100 dark:bg-purple-900 rounded-full flex items-center justify-center mx-auto mb-3\">\n          <span class=\"font-semibold text-purple-600 dark:text-purple-400\">3</span>\n        </div>\n        <h3 class=\"font-semibold mb-1\">Rozpatrzenie</h3>\n        <p class=\"text-gray-600 dark:text-gray-300 text-sm\">Komisja ds. Obywatelstwa rozpatruje wniosek w ciągu 7 dni roboczych.</p>\n      </div>\n      \n      <div>\n        <div class=\"w-12 h-12 bg-yellow-100 dark:bg-yellow-900 rounded-full flex items-center justify-center mx-auto mb-3\">\n          <span class=\"font-semibold text-yellow-600 dark:text-yellow-400\">4</span>\n        </div>\n        <h3 class=\"font-semibold mb-1\">Decyzja</h3>\n        <p class=\"text-gray-600 dark:text-gray-300 text-sm\">Otrzymasz powiadomienie o decyzji oraz dalsze instrukcje.</p>\n      </div>\n    </div>\n  </div>\n  \n  <div class=\"bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-md\">\n    <h2 class=\"text-2xl font-bold mb-4\">Często Zadawane Pytania</h2>\n    \n    <div x-data=\"{ openFaq: null }\" class=\"space-y-4\">\n      <div class=\"border border-gray-200 dark:border-gray-700 rounded-lg\">\n        <button \n          @click=\"openFaq === 1 ? openFaq = null : openFaq = 1\" \n          class=\"w-full flex justify-between items-center p-4 text-left\">\n          <span class=\"font-medium\">Czy obywatelstwo Republiki Globo jest płatne?</span>\n          <i class=\"fas fa-chevron-down transition-transform\" :class=\"{ 'transform rotate-180': openFaq === 1 }\"></i>\n        </button>\n        <div x-show=\"openFaq === 1\" x-collapse class=\"p-4 pt-0 border-t border-gray-200 dark:border-gray-700\">\n          <p class=\"text-gray-600 dark:text-gray-300\">Nie, obywatelstwo Republiki Globo jest całkowicie bezpłatne. Jesteśmy społecznością non-profit, a naszym celem jest budowa aktywnej społeczności, a nie czerpanie zysków.</p>\n        </div>\n      </div>\n      \n      <div class=\"border border-gray-200 dark:border-gray-700 rounded-lg\">\n        <button \n          @click=\"openFaq === 2 ? openFaq = null : openFaq = 2\" \n          class=\"w-full flex justify-between items-center p-4 text-left\">\n          <span class=\"font-medium\">Czy obywatelstwo Republiki Globo wpływa na moje obywatelstwo w rzeczywistym kraju?</span>\n          <i class=\"fas fa-chevron-down transition-transform\" :class=\"{ 'transform rotate-180': openFaq === 2 }\"></i>\n        </button>\n        <div x-show=\"openFaq === 2\" x-collapse class=\"p-4 pt-0 border-t border-gray-200 dark:border-gray-700\">\n          <p class=\"text-gray-600 dark:text-gray-300\">Absolutnie nie. Republika Globo jest mikronacją - wirtualną społecznością, która nie rości sobie pretensji do terytorium ani suwerenności w rzeczywistym świecie. Nasze obywatelstwo ma charakter honorowy i nie wpływa na twoje prawa ani obowiązki w kraju, w którym mieszkasz.</p>\n        </div>\n      </div>\n      \n      <div class=\"border border-gray-200 dark:border-gray-700 rounded-lg\">\n        <button \n          @click=\"openFaq === 3 ? openFaq = null : openFaq = 3\" \n          class=\"w-full flex justify-between items-center p-4 text-left\">\n          <span class=\"font-medium\">Jakie są obowiązki obywatela Republiki Globo?</span>\n          <i class=\"fas fa-chevron-down transition-transform\" :class=\"{ 'transform rotate-180': openFaq === 3 }\"></i>\n        </button>\n        <div x-show=\"openFaq === 3\" x-collapse class=\"p-4 pt-0 border-t border-gray-200 dark:border-gray-700\">\n          <p class=\"text-gray-600 dark:text-gray-300\">Głównym obowiązkiem jest przestrzeganie regulaminu i zasad naszej społeczności. Zachęcamy również do aktywnego uczestnictwa w życiu Republiki - głosowania, dyskusji na forum oraz udziału w projektach. Nie ma jednak obowiązku minimalnej aktywności.</p>\n        </div>\n      </div>\n      \n      <div class=\"border border-gray-200 dark:border-gray-700 rounded-lg\">\n        <button \n          @click=\"openFaq === 4 ? openFaq = null : openFaq = 4\" \n          class=\"w-full flex justify-between items-center p-4 text-left\">\n          <span class=\"font-medium\">Ile czasu zajmuje proces przyznawania obywatelstwa?</span>\n          <i class=\"fas fa-chevron-down transition-transform\" :class=\"{ 'transform rotate-180': openFaq === 4 }\"></i>\n        </button>\n        <div x-show=\"openFaq === 4\" x-collapse class=\"p-4 pt-0 border-t border-gray-200 dark:border-gray-700\">\n          <p class=\"text-gray-600 dark:text-gray-300\">Standardowo proces zajmuje do 7 dni roboczych. W przypadku dużej liczby zgłoszeń czas ten może się wydłużyć. O każdym etapie procesu będziesz informowany mailowo.</p>\n        </div>\n      </div>\n    </div>\n    \n    <div class=\"mt-6 text-center\">\n      <a href=\"#/faq\" class=\"inline-flex items-center text-blue-600 dark:text-blue-400 hover:underline\">\n        Zobacz więcej pytań i odpowiedzi <i class=\"fas fa-arrow-right ml-2\"></i>\n      </a>\n    </div>\n  </div>\n</section>"
+}
+
+<==language.json==>
+
+{
+  "title": "Język",
+  "content": "<section class=\"mb-12\">\n  <div class=\"hero-pattern rounded-2xl p-8 md:p-12 text-center mb-8\">\n    <h1 class=\"text-4xl md:text-5xl font-bold mb-4 gradient-text\">Język Republiki Globo</h1>\n    <p class=\"text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto\">Odkryj Globish - uproszczoną formę języka angielskiego, zaprojektowaną jako lingua franca naszej mikronacji.</p>\n  </div>\n\n  <div class=\"bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-md mb-8\">\n    <div class=\"flex flex-col md:flex-row items-center justify-between mb-6\">\n      <h2 class=\"text-2xl font-bold\">Czym jest Globish?</h2>\n      <span class=\"language-badge mt-2 md:mt-0\">Oficjalny język</span>\n    </div>\n    \n    <div class=\"grid md:grid-cols-2 gap-6\">\n      <div>\n        <p class=\"text-gray-600 dark:text-gray-300 mb-4\">Globish to uproszczona forma języka angielskiego, zawierająca około 1500 najczęściej używanych słów oraz uproszczone zasady gramatyczne. Został zaprojektowany jako łatwy do nauczenia się język międzynarodowy, który może służyć jako most komunikacyjny między obywatelami z różnych krajów.</p>\n        \n        <div class=\"bg-blue-50 dark:bg-blue-900/30 p-4 rounded-lg mb-4\">\n          <h3 class=\"font-semibold mb-2 text-blue-800 dark:text-blue-200\">Dlaczego Globish?</h3>\n          <ul class=\"text-blue-700 dark:text-blue-300 text-sm space-y-1\">\n            <li class=\"flex items-start\">\n              <i class=\"fas fa-check-circle mt-1 mr-2 text-blue-500\"></i>\n              <span>Łatwy do nauki dla osób znających podstawy angielskiego</span>\n            </li>\n            <li class=\"flex items-start\">\n              <i class=\"fas fa-check-circle mt-1 mr-2 text-blue-500\"></i>\n              <span>Redukuje bariery komunikacyjne między obywatelami</span>\n            </li>\n            <li class=\"flex items-start\">\n              <i class=\"fas fa-check-circle mt-1 mr-2 text-blue-500\"></i>\n              <span>Wspiera integrację międzynarodowej społeczności</span>\n            </li>\n          </ul>\n        </div>\n      </div>\n      \n      <div>\n        <div class=\"bg-gray-100 dark:bg-gray-700 p-4 rounded-lg mb-4\">\n          <h3 class=\"font-semibold mb-2\">Przykład Globish</h3>\n          <p class=\"text-gray-600 dark:text-gray-300 text-sm italic mb-2\">Tekst w Globish:</p>\n          <p class=\"text-gray-800 dark:text-gray-200 bg-white dark:bg-gray-800 p-3 rounded\">\"Hello! Welcome to Globo Republic. We are happy you visit our website. We believe in freedom, innovation, and cooperation. Please join our community and help us build better future together.\"</p>\n        </div>\n        \n        <div class=\"bg-green-50 dark:bg-green-900/30 p-4 rounded-lg\">\n          <h3 class=\"font-semibold mb-2 text-green-800 dark:text-green-200\">Statystyki</h3>\n          <div class=\"grid grid-cols-2 gap-2 text-sm\">\n            <div>\n              <div class=\"font-semibold\">1,500</div>\n              <div class=\"text-green-700 dark:text-green-300\">słów w słowniku</div>\n            </div>\n            <div>\n              <div class=\"font-semibold\">74%</div>\n              <div class=\"text-green-700 dark:text-green-300\">obywateli używa Globish</div>\n            </div>\n          </div>\n        </div>\n      </div>\n    </div>\n  </div>\n  \n  <div class=\"grid md:grid-cols-2 gap-8 mb-8\">\n    <div class=\"bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-md\">\n      <h2 class=\"text-2xl font-bold mb-6\">Nauka Globish</h2>\n      \n      <div class=\"space-y-4\">\n        <div class=\"flex items-start\">\n          <div class=\"w-12 h-12 bg-blue-100 dark:bg-blue-900 rounded-full flex items-center justify-center mr-4 mt-1\">\n            <i class=\"fas fa-book text-blue-600 dark:text-blue-400\"></i>\n          </div>\n          <div>\n            <h3 class=\"font-semibold\">Słownik Online</h3>\n            <p class=\"text-gray-600 dark:text-gray-300 text-sm\">Oficjalny słownik Globish z przykładami użycia i wymową.</p>\n            <a href=\"#\" class=\"inline-flex items-center text-blue-600 dark:text-blue-400 text-sm hover:underline mt-1\">\n              Przejdź do słownika <i class=\"fas fa-arrow-right ml-1 text-xs\"></i>\n            </a>\n          </div>\n        </div>\n        \n        <div class=\"flex items-start\">\n          <div class=\"w-12 h-12 bg-green-100 dark:bg-green-900 rounded-full flex items-center justify-center mr-4 mt-1\">\n            <i class=\"fas fa-graduation-cap text-green-600 dark:text-green-400\"></i>\n          </div>\n          <div>\n            <h3 class=\"font-semibold\">Kursy Online</h3>\n            <p class=\"text-gray-600 dark:text-gray-300 text-sm\">Darmowe interaktywne kursy Globish na różnych poziomach zaawansowania.</p>\n            <a href=\"#\" class=\"inline-flex items-center text-blue-600 dark:text-blue-400 text-sm hover:underline mt-1\">\n              Rozpocznij kurs <i class=\"fas fa-arrow-right ml-1 text-xs\"></i>\n            </a>\n          </div>\n        </div>\n        \n        <div class=\"flex items-start\">\n          <div class=\"w-12 h-12 bg-purple-100 dark:bg-purple-900 rounded-full flex items-center justify-center mr-4 mt-1\">\n            <i class=\"fas fa-users text-purple-600 dark:text-purple-400\"></i>\n          </div>\n          <div>\n            <h3 class=\"font-semibold\">Kluby Konwersacyjne</h3>\n            <p class=\"text-gray-600 dark:text-gray-300 text-sm\">Dołącz do cotygodniowych spotkań online, aby ćwiczyć Globish w praktyce.</p>\n            <a href=\"#\" class=\"inline-flex items-center text-blue-600 dark:text-blue-400 text-sm hover:underline mt-1\">\n              Zobacz terminy <i class=\"fas fa-arrow-right ml-1 text-xs\"></i>\n            </a>\n          </div>\n        </div>\n        \n        <div class=\"flex items-start\">\n          <div class=\"w-12 h-12 bg-yellow-100 dark:bg-yellow-900 rounded-full flex items-center justify-center mr-4 mt-1\">\n            <i class=\"fas fa-mobile-alt text-yellow-600 dark:text-yellow-400\"></i>\n          </div>\n          <div>\n            <h3 class=\"font-semibold\">Aplikacja Mobilna</h3>\n            <p class=\"text-gray-600 dark:text-gray-300 text-sm\">Ucz się Globish w dowolnym miejscu i czasie dzięki naszej oficjalnej aplikacji.</p>\n            <div class=\"flex space-x-2 mt-1\">\n              <a href=\"#\" class=\"text-blue-600 dark:text-blue-400 text-sm hover:underline\">\n                <i class=\"fab fa-apple mr-1\"></i> iOS\n              </a>\n              <a href=\"#\" class=\"text-blue-600 dark:text-blue-400 text-sm hover:underline\">\n                <i class=\"fab fa-android mr-1\"></i> Android\n              </a>\n            </div>\n          </div>\n        </div>\n      </div>\n    </div>\n    \n    <div class=\"bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-md\">\n      <h2 class=\"text-2xl font-bold mb-6\">Zasady Gramatyczne</h2>\n      \n      <div x-data=\"{ activeTab: 'verbs' }\" class=\"h-full\">\n        <div class=\"flex border-b border-gray-200 dark:border-gray-700 mb-4\">\n          <button \n            @click=\"activeTab = 'verbs'\" \n            :class=\"{ 'border-b-2 border-blue-500 text-blue-600 dark:text-blue-400': activeTab === 'verbs', 'text-gray-500 dark:text-gray-400': activeTab !== 'verbs' }\" \n            class=\"px-4 py-2 font-medium focus:outline-none\">\n            Czasowniki\n          </button>\n          <button \n            @click=\"activeTab = 'nouns'\" \n            :class=\"{ 'border-b-2 border-blue-500 text-blue-600 dark:text-blue-400': activeTab === 'nouns', 'text-gray-500 dark:text-gray-400': activeTab !== 'nouns' }\" \n            class=\"px-4 py-2 font-medium focus:outline-none\">\n            Rzeczowniki\n          </button>\n          <button \n            @click=\"activeTab = 'syntax'\" \n            :class=\"{ 'border-b-2 border-blue-500 text-blue-600 dark:text-blue-400': activeTab === 'syntax', 'text-gray-500 dark:text-gray-400': activeTab !== 'syntax' }\" \n            class=\"px-4 py-2 font-medium focus:outline-none\">\n            Składnia\n          </button>\n        </div>\n        \n        <div x-show=\"activeTab === 'verbs'\">\n          <h3 class=\"font-semibold mb-2\">Czasowniki w Globish</h3>\n          <ul class=\"text-gray-600 dark:text-gray-300 text-sm space-y-2\">\n            <li class=\"flex items-start\">\n              <i class=\"fas fa-check text-green-500 mt-1 mr-2\"></i>\n              <span>Uproszczona koniugacja - tylko podstawowe formy</span>\n            </li>\n            <li class=\"flex items-start\">\n              <i class=\"fas fa-check text-green-500 mt-1 mr-2\"></i>\n              <span>Brak czasów perfect, używamy tylko Present, Past i Future Simple</span>\n            </li>\n            <li class=\"flex items-start\">\n              <i class=\"fas fa-check text-green-500 mt-1 mr-2\"></i>\n              <span>Czasowniki posiłkowe do tworzenia pytań i przeczeń</span>\n            </li>\n            <li class=\"flex items-start\">\n              <i class=\"fas fa-check text-green-500 mt-1 mr-2\"></i>\n              <span>Regularne formy czasu przeszłego z końcówką -ed</span>\n            </li>\n          </ul>\n        </div>\n        \n        <div x-show=\"activeTab === 'nouns'\" x-cloak>\n          <h3 class=\"font-semibold mb-2\">Rzeczowniki w Globish</h3>\n          <ul class=\"text-gray-600 dark:text-gray-300 text-sm space-y-2\">\n            <li class=\"flex items-start\">\n              <i class=\"fas fa-check text-green-500 mt-1 mr-2\"></i>\n              <span>Brak rodzajników (a, an, the) w większości przypadków</span>\n            </li>\n            <li class=\"flex items-start\">\n              <i class=\"fas fa-check text-green-500 mt-1 mr-2\"></i>\n              <span>Liczba mnoga tworzona przez dodanie -s</span>\n            </li>\n            <li class=\"flex items-start\">\n              <i class=\"fas fa-check text-green-500 mt-1 mr-2\"></i>\n              <span>Uproszczone formy dzierżawcze</span>\n            </li>\n            <li class=\"flex items-start\">\n              <i class=\"fas fa-check text-green-500 mt-1 mr-2\"></i>\n              <span>Ograniczona liczba nieregularnych form</span>\n            </li>\n          </ul>\n        </div>\n        \n        <div x-show=\"activeTab === 'syntax'\" x-cloak>\n          <h3 class=\"font-semibold mb-2\">Składnia w Globish</h3>\n          <ul class=\"text-gray-600 dark:text-gray-300 text-sm space-y-2\">\n            <li class=\"flex items-start\">\n              <i class=\"fas fa-check text-green-500 mt-1 mr-2\"></i>\n              <span>Proste zdania z szykiem podmiot-orzeczenie-dopełnienie</span>\n            </li>\n            <li class=\"flex items-start\">\n              <i class=\"fas fa-check text-green-500 mt-1 mr-2\"></i>\n              <span>Ograniczenie użycia zdań złożonych</span>\n            </li>\n            <li class=\"flex items-start\">\n              <i class=\"fas fa-check text-green-500 mt-1 mr-2\"></i>\n              <span>Uproszczone spójniki i zaimki</span>\n            </li>\n            <li class=\"flex items-start\">\n              <i class=\"fas fa-check text-green-500 mt-1 mr-2\"></i>\n              <span>Bezpośrednie formułowanie pytań</span>\n            </li>\n          </ul>\n        </div>\n      </div>\n    </div>\n  </div>\n  \n  <div class=\"bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-md\">\n    <h2 class=\"text-2xl font-bold mb-6\">Materiały Do Nauki</h2>\n    \n    <div class=\"grid md:grid-cols-3 gap-6\">\n      <div class=\"border border-gray-200 dark:border-gray-700 rounded-lg p-4 text-center\">\n        <div class=\"w-12 h-12 bg-blue-100 dark:bg-blue-900 rounded-full flex items-center justify-center mx-auto mb-3\">\n          <i class=\"fas fa-file-pdf text-blue-600 dark:text-blue-400\"></i>\n        </div>\n        <h3 class=\"font-semibold mb-2\">Podręcznik PDF</h3>\n        <p class=\"text-gray-600 dark:text-gray-300 text-sm mb-3\">Kompletny podręcznik do nauki Globish z ćwiczeniami.</p>\n        <button class=\"text-blue-600 dark:text-blue-400 text-sm hover:underline\">\n          Pobierz (3.2 MB)\n        </button>\n      </div>\n      \n      <div class=\"border border-gray-200 dark:border-gray-700 rounded-lg p-4 text-center\">\n        <div class=\"w-12 h-12 bg-green-100 dark:bg-green-900 rounded-full flex items-center justify-center mx-auto mb-3\">\n          <i class=\"fas fa-headphones text-green-600 dark:text-green-400\"></i>\n        </div>\n        <h3 class=\"font-semibold mb-2\">Nagrania Audio</h3>\n        <p class=\"text-gray-600 dark:text-gray-300 text-sm mb-3\">Zbiór nagrań z wymową słów i zwrotów w Globish.</p>\n        <button class=\"text-blue-600 dark:text-blue-400 text-sm hover:underline\">\n          Słuchaj online\n        </button>\n      </div>\n      \n      <div class=\"border border-gray-200 dark:border-gray-700 rounded-lg p-4 text-center\">\n        <div class=\"w-12 h-12 bg-purple-100 dark:bg-purple-900 rounded-full flex items-center justify-center mx-auto mb-3\">\n          <i class=\"fas fa-film text-purple-600 dark:text-purple-400\"></i>\n        </div>\n        <h3 class=\"font-semibold mb-2\">Lekcje Wideo</h3>\n        <p class=\"text-gray-600 dark:text-gray-300 text-sm mb-3\">Seria filmów edukacyjnych do nauki Globish.</p>\n        <button class=\"text-blue-600 dark:text-blue-400 text-sm hover:underline\">\n          Obejrzyj na YouTube\n        </button>\n      </div>\n    </div>\n    \n    <div class=\"mt-6 text-center\">\n      <a href=\"#/forum\" class=\"inline-flex items-center text-blue-600 dark:text-blue-400 hover:underline\">\n        <i class=\"fas fa-comments mr-2\"></i> Dołącz do dyskusji o Globish na forum\n      </a>\n    </div>\n  </div>\n</section>"
+}
+
+<==news.json==>
+
+{
+  "title": "Wiadomości",
+  "items": [
+    { 
+      "id": "n1", 
+      "title": "Otwarcie forum Republiki Globo", 
+      "excerpt": "Nowe forum uruchomione — miejsce dyskusji i projektów. Platforma oferuje nowoczesne funkcje i lepszą integrację z systemem obywatelskim.", 
+      "date": "2025-01-14",
+      "category": "Technologia"
+    },
+    { 
+      "id": "n2", 
+      "title": "Nowe ustawy NBRP", 
+      "excerpt": "Wprowadzono ustawę o e-obywatelstwie i standardach dokumentów. Nowe przepisy usprawnią funkcjonowanie administracji publicznej.", 
+      "date": "2024-10-24",
+      "category": "Prawo"
+    },
+    { 
+      "id": "n3", 
+      "title": "Współpraca z Republiką Gneżenską", 
+      "excerpt": "Rozpoczęto oficjalne partnerstwo. Porozumienie obejmuje wymianę kulturalną i współpracę technologiczną między naszymi mikronacjami.", 
+      "date": "2024-10-23",
+      "category": "Miȩdzynarodowe"
+    },
+    { 
+      "id": "n4", 
+      "title": "Start programu Globish Academy", 
+      "excerpt": "Program nauki języka globińskiego. Oferuje darmowe kursy online na różnych poziomach zaawansowania dla wszystkich obywateli.", 
+      "date": "2025-02-01",
+      "category": "Edukacja"
+    },
+    { 
+      "id": "n5", 
+      "title": "Nowa platforma e-obywatel", 
+      "excerpt": "Zmodernizowana platforma oferuje nowe funkcje i lepsze zabezpieczenia. Obywatele mogą teraz łatwiej załatwiać sprawy urzędowe online.", 
+      "date": "2025-02-15",
+      "category": "Technologia"
+    },
+    { 
+      "id": "n6", 
+      "title": "Festiwal Kultury Globo 2025", 
+      "excerpt": "Zapowiedź corocznego festiwalu kultury. Wydarzenie odbędzie się wirtualnie i będzie dostępne dla wszystkich obywateli.", 
+      "date": "2025-03-10",
+      "category": "Kultura"
+    }
+  ]
+}
+
+<==partners.json==>
+
+{
+  "title": "Partnerzy",
+  "content": "<section class=\"mb-12\">\n  <div class=\"hero-pattern rounded-2xl p-8 md:p-12 text-center mb-8\">\n    <h1 class=\"text-4xl md:text-5xl font-bold mb-4 gradient-text\">Partnerzy Republiki Globo</h1>\n    <p class=\"text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto\">Współpracujemy z innymi mikronacjami i organizacjami, aby wspólnie budować lepszą przyszłość.</p>\n  </div>\n\n  <div class=\"bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-md mb-8\">\n    <h2 class=\"text-2xl font-bold mb-6\">Nasi Główni Partnerzy</h2>\n    \n    <div class=\"grid md:grid-cols-2 gap-6\">\n      <div class=\"border border-gray-200 dark:border-gray-700 rounded-lg p-6 embassy-card\" style=\"border-left-color: #4f46e5;\">\n        <div class=\"flex items-center mb-4\">\n          <img src=\"https://placehold.co/40x40/4f46e5/white?text=RG\" alt=\"Flaga Republiki Gneżeńskiej\" class=\"flag-icon\">\n          <h3 class=\"text-xl font-semibold\">Republika Gneżeńska</h3>\n        </div>\n        <p class=\"text-gray-600 dark:text-gray-300 mb-4\">Nasz pierwszy i najważniejszy partner międzynarodowy. Współpraca obejmuje wymianę kulturalną, projekty technologiczne i wspólne inicjatywy edukacyjne.</p>\n        <div class=\"flex items-center text-sm text-gray-500\">\n          <span class=\"mr-4\"><i class=\"fas fa-calendar-alt mr-1\"></i> Od 23.10.2024</span>\n          <span><i class=\"fas fa-handshake mr-1\"></i> Pełne partnerstwo</span>\n        </div>\n      </div>\n      \n      <div class=\"border border-gray-200 dark:border-gray-700 rounded-lg p-6 embassy-card\" style=\"border-left-color: #059669;\">\n        <div class=\"flex items-center mb-4\">\n          <img src=\"https://placehold.co/40x40/059669/white?text=MX\" alt=\"Flaga Micronation X\" class=\"flag-icon\">\n          <h3 class=\"text-xl font-semibold\">Micronation X</h3>\n        </div>\n        <p class=\"text-gray-600 dark:text-gray-300 mb-4\">Partnerstwo skupione na innowacjach technologicznych i rozwoju platform cyfrowych. Wspólnie pracujemy nad standardami cyfrowymi dla mikronacji.</p>\n        <div class=\"flex items-center text-sm text-gray-500\">\n          <span class=\"mr-4\"><i class=\"fas fa-calendar-alt mr-1\"></i> Od 15.12.2024</span>\n          <span><i class=\"fas fa-handshake mr-1\"></i> Partnerstwo technologiczne</span>\n        </div>\n      </div>\n      \n      <div class=\"border border-gray-200 dark:border-gray-700 rounded-lg p-6 embassy-card\" style=\"border-left-color: #dc2626;\">\n        <div class=\"flex items-center mb-4\">\n          <img src=\"https://placehold.co/40x40/dc2626/white?text=OY\" alt=\"Logo Organizacji Y\" class=\"flag-icon\">\n          <h3 class=\"text-xl font-semibold\">Organizacja Y</h3>\n        </div>\n        <p class=\"text-gray-600 dark:text-gray-300 mb-4\">Współpraca w zakresie edukacji obywatelskiej i promocji wartości demokratycznych. Wspólne projekty edukacyjne i badawcze.</p>\n        <div class=\"flex items-center text-sm text-gray-500\">\n          <span class=\"mr-4\"><i class=\"fas fa-calendar-alt mr-1\"></i> Od 10.01.2025</span>\n          <span><i class=\"fas fa-handshake mr-1\"></i> Partnerstwo edukacyjne</span>\n        </div>\n      </div>\n      \n      <div class=\"border border-gray-200 dark:border-gray-700 rounded-lg p-6 embassy-card\" style=\"border-left-color: #7c3aed;\">\n        <div class=\"flex items-center mb-4\">\n          <img src=\"https://placehold.co/40x40/7c3aed/white?text=VA\" alt=\"Flaga Virtual Alliance\" class=\"flag-icon\">\n          <h3 class=\"text-xl font-semibold\">Virtual Alliance</h3>\n        </div>\n        <p class=\"text-gray-600 dark:text-gray-300 mb-4\">Członek sojuszu mikronacji wirtualnych. Współpraca w zakresie standardów prawnych, bezpieczeństwa cybernetycznego i reprezentacji międzynarodowej.</p>\n        <div class=\"flex items-center text-sm text-gray-500\">\n          <span class=\"mr-4\"><i class=\"fas fa-calendar-alt mr-1\"></i> Od 05.02.2025</span>\n          <span><i class=\"fas fa-handshake mr-1\"></i> Członkostwo w sojuszu</span>\n        </div>\n      </div>\n    </div>\n  </div>\n  \n  <div class=\"bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-md mb-8\">\n    <h2 class=\"text-2xl font-bold mb-6\">Mapa Partnerstw</h2>\n    \n    <div class=\"bg-gray-200 dark:bg-gray-700 rounded-lg p-4 mb-6 h-64 flex items-center justify-center\">\n      <div class=\"text-center text-gray-500\">\n        <i class=\"fas fa-globe-americas text-4xl mb-2\"></i>\n        <p>Interaktywna mapa przedstawiająca naszych partnerów międzynarodowych</p>\n      </div>\n    </div>\n    \n    <div class=\"grid md:grid-cols-4 gap-4 text-center\">\n      <div>\n        <div class=\"text-2xl font-bold text-blue-600 dark:text-blue-400\">4</div>\n        <div class=\"text-sm text-gray-600 dark:text-gray-300\">Aktywni partnerzy</div>\n      </div>\n      \n      <div>\n        <div class=\"text-2xl font-bold text-green-600 dark:text-green-400\">7</div>\n        <div class=\"text-sm text-gray-600 dark:text-gray-300\">Wspólne projekty</div>\n      </div>\n      \n      <div>\n        <div class=\"text-2xl font-bold text-purple-600 dark:text-purple-400\">3</div>\n        <div class=\"text-sm text-gray-600 dark:text-gray-300\">Umowy handlowe</div>\n      </div>\n      \n      <div>\n        <div class=\"text-2xl font-bold text-yellow-600 dark:text-yellow-400\">2</div>\n        <div class=\"text-sm text-gray-600 dark:text-gray-300\">Sojusze obronne</div>\n      </div>\n    </div>\n  </div>\n  \n  <div class=\"grid md:grid-cols-2 gap-8 mb-8\">\n    <div class=\"bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-md\">\n      <h2 class=\"text-2xl font-bold mb-6\">Ostatnie Wydarzenia</h2>\n      \n      <div class=\"space-y-6\">\n        <div class=\"flex items-start\">\n          <div class=\"w-12 h-12 bg-blue-100 dark:bg-blue-900 rounded-full flex items-center justify-center mr-4 mt-1\">\n            <i class=\"fas fa-handshake text-blue-600 dark:text-blue-400\"></i>\n          </div>\n          <div>\n            <h3 class=\"font-semibold\">Podpisanie porozumienia z Virtual Alliance</h3>\n            <p class=\"text-gray-500 text-sm mb-1\">5 lutego 2025</p>\n            <p class=\"text-gray-600 dark:text-gray-300 text-sm\">Republika Globo dołączyła do sojuszu wirtualnych mikronacji, co otwiera nowe możliwości współpracy.</p>\n          </div>\n        </div>\n        \n        <div class=\"flex items-start\">\n          <div class=\"w-12 h-12 bg-green-100 dark:bg-green-900 rounded-full flex items-center justify-center mr-4 mt-1\">\n            <i class=\"fas fa-microphone text-green-600 dark:text-green-400\"></i>\n          </div>\n          <div>\n            <h3 class=\"font-semibold\">Wspólna konferencja z Republiką Gneżeńską</h3>\n            <p class=\"text-gray-500 text-sm mb-1\">20 stycznia 2025</p>\n            <p class=\"text-gray-600 dark:text-gray-300 text-sm\">Prezentacja wspólnych projektów technologicznych i planów na przyszłość.</p>\n          </div>\n        </div>\n        \n        <div class=\"flex items-start\">\n          <div class=\"w-12 h-12 bg-purple-100 dark:bg-purple-900 rounded-full flex items-center justify-center mr-4 mt-1\">\n            <i class=\"fas fa-graduation-cap text-purple-600 dark:text-purple-400\"></i>\n          </div>\n          <div>\n            <h3 class=\"font-semibold\">Start programu wymiany edukacyjnej</h3>\n            <p class=\"text-gray-500 text-sm mb-1\">10 stycznia 2025</p>\n            <p class=\"text-gray-600 dark:text-gray-300 text-sm\">Pierwsi studenci rozpoczęli wymianę między naszymi mikronacjami.</p>\n          </div>\n        </div>\n      </div>\n    </div>\n    \n    <div class=\"bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-md\">\n      <h2 class=\"text-2xl font-bold mb-6\">Planowane Partnerstwa</h2>\n      \n      <div class=\"space-y-4\">\n        <div class=\"flex justify-between items-center p-3 border border-gray-200 dark:border-gray-700 rounded-lg\">\n          <div>\n            <h3 class=\"font-medium\">EcoMicronations Coalition</h3>\n            <p class=\"text-xs text-gray-500\">Rozmowy zaawansowane</p>\n          </div>\n          <span class=\"px-2 py-1 bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 text-xs rounded-full\">Środowisko</span>\n        </div>\n        \n        <div class=\"flex justify-between items-center p-3 border border-gray-200 dark:border-gray-700 rounded-lg\">\n          <div>\n            <h3 class=\"font-medium\">Digital Freedom Alliance</h3>\n            <p class=\"text-xs text-gray-500\">Wczesne rozmowy</p>\n          </div>\n          <span class=\"px-2 py-1 bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 text-xs rounded-full\">Technologia</span>\n        </div>\n        \n        <div class=\"flex justify-between items-center p-3 border border-gray-200 dark:border-gray-700 rounded-lg\">\n          <div>\n            <h3 class=\"font-medium\">MicroTrade Organization</h3>\n            <p class=\"text-xs text-gray-500\">Propozycja złożona</p>\n          </div>\n          <span class=\"px-2 py-1 bg-yellow-100 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-200 text-xs rounded-full\">Handel</span>\n        </div>\n        \n        <div class=\"flex justify-between items-center p-3 border border-gray-200 dark:border-gray-700 rounded-lg\">\n          <div>\n            <h3 class=\"font-medium\">Global Micronations Cultural Exchange</h3>\n            <p class=\"text-xs text-gray-500\">W przygotowaniu</p>\n          </div>\n          <span class=\"px-2 py-1 bg-purple-100 dark:bg-purple-900 text-purple-800 dark:text-purple-200 text-xs rounded-full\">Kultura</span>\n        </div>\n      </div>\n    </div>\n  </div>\n  \n  <div class=\"bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-md\">\n    <h2 class=\"text-2xl font-bold mb-6\">Zostań Partnerem</h2>\n    \n    <div class=\"grid md:grid-cols-2 gap-6\">\n      <div>\n        <h3 class=\"font-semibold mb-3\">Korzyści z partnerstwa</h3>\n        <ul class=\"text-gray-600 dark:text-gray-300 space-y-2\">\n          <li class=\"flex items-start\">\n            <i class=\"fas fa-check-circle text-green-500 mt-1 mr-2\"></i>\n            <span>Dostęp do nowych technologii i rozwiązań</span>\n          </li>\n          <li class=\"flex items-start\">\n            <i class=\"fas fa-check-circle text-green-500 mt-1 mr-2\"></i>\n            <span>Wymiana know-how i najlepszych praktyk</span>\n          </li>\n          <li class=\"flex items-start\">\n            <i class=\"fas fa-check-circle text-green-500 mt-1 mr-2\"></i>\n            <span>Wspólne projekty i inicjatywy</span>\n          </li>\n          <li class=\"flex items-start\">\n            <i class=\"fas fa-check-circle text-green-500 mt-1 mr-2\"></i>\n            <span>Wzajemne promocje i wsparcie wizerunkowe</span>\n          </li>\n          <li class=\"flex items-start\">\n            <i class=\"fas fa-check-circle text-green-500 mt-1 mr-2\"></i>\n            <span>Uczestnictwo w wydarzeniach i konferencjach</span>\n          </li>\n        </ul>\n      </div>\n      \n      <div>\n        <h3 class=\"font-semibold mb-3\">Zainteresowany współpracą?</h3>\n        <p class=\"text-gray-600 dark:text-gray-300 mb-4\">Jeśli reprezentujesz mikronację lub organizację i jesteś zainteresowany współpracą z Republiką Globo, skontaktuj się z naszym Departamentem Spraw Zagranicznych.</p>\n        \n        <div class=\"flex space-x-3\">\n          <a href=\"#/contact\" class=\"bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition flex items-center\">\n            <i class=\"fas fa-envelope mr-2\"></i> Kontakt\n          </a>\n          <a href=\"#/documents\" class=\"bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-lg transition flex items-center\">\n            <i class=\"fas fa-file-alt mr-2\"></i> Zasady współpracy\n          </a>\n        </div>\n      </div>\n    </div>\n  </div>\n</section>"
+}
+
+<==values.json==>
+
+{
+  "title": "Wartości",
+  "content": "<section class=\"mb-12\">\n  <div class=\"hero-pattern rounded-2xl p-8 md:p-12 text-center mb-8\">\n    <h1 class=\"text-4xl md:text-5xl font-bold mb-4 gradient-text\">Wartości Republiki Globo</h1>\n    <p class=\"text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto\">Fundamenty, na których budujemy naszą społeczność i które kierują naszymi działaniami.</p>\n  </div>\n\n  <div class=\"grid md:grid-cols-2 gap-8 mb-12\">\n    <div class=\"bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-md\">\n      <div class=\"flex items-center mb-4\">\n        <div class=\"w-12 h-12 bg-blue-100 dark:bg-blue-900 rounded-full flex items-center justify-center mr-4\">\n          <i class=\"fas fa-comments text-blue-600 dark:text-blue-400 text-xl\"></i>\n        </div>\n        <h2 class=\"text-2xl font-bold\">Wolność Słowa</h2>\n      </div>\n      <p class=\"text-gray-600 dark:text-gray-300 mb-4\">W Republice Globo cenimy sobie otwartą wymianę idei i poglądów. Każdy obywatel ma prawo do wyrażania swoich opinii, pod warunkiem szanowania godności innych i przestrzegania zasad dyskusji.</p>\n      \n      <div class=\"bg-blue-50 dark:bg-blue-900/30 p-4 rounded-lg\">\n        <h3 class=\"font-semibold mb-2 text-blue-800 dark:text-blue-200\">W praktyce:</h3>\n        <ul class=\"text-blue-700 dark:text-blue-300 text-sm space-y-1\">\n          <li class=\"flex items-start\">\n            <i class=\"fas fa-check-circle mt-1 mr-2 text-blue-500\"></i>\n            <span>Otwarte forum dyskusyjne bez cenzury</span>\n          </li>\n          <li class=\"flex items-start\">\n            <i class=\"fas fa-check-circle mt-1 mr-2 text-blue-500\"></i>\n            <span>Prawo do konstruktywnej krytyki</span>\n          </li>\n          <li class=\"flex items-start\">\n            <i class=\"fas fa-check-circle mt-1 mr-2 text-blue-500\"></i>\n            <span>Ochrona przed mową nienawiści i dezinformacją</span>\n          </li>\n        </ul>\n      </div>\n    </div>\n    \n    <div class=\"bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-md\">\n      <div class=\"flex items-center mb-4\">\n        <div class=\"w-12 h-12 bg-green-100 dark:bg-green-900 rounded-full flex items-center justify-center mr-4\">\n          <i class=\"fas fa-chart-line text-green-600 dark:text-green-400 text-xl\"></i>\n        </div>\n        <h2 class=\"text-2xl font-bold\">Wolność Gospodarcza</h2>\n      </div>\n      <p class=\"text-gray-600 dark:text-gray-300 mb-4\">Wierzymy w siłę wolnego rynku i przedsiębiorczości. Nasi obywatele mają prawo do prowadzenia działalności gospodarczej, inwestowania i wymiany handlowej przy minimalnych ograniczeniach.</p>\n      \n      <div class=\"bg-green-50 dark:bg-green-900/30 p-4 rounded-lg\">\n        <h3 class=\"font-semibold mb-2 text-green-800 dark:text-green-200\">W praktyce:</h3>\n        <ul class=\"text-green-700 dark:text-green-300 text-sm space-y-1\">\n          <li class=\"flex items-start\">\n            <i class=\"fas fa-check-circle mt-1 mr-2 text-green-500\"></i>\n            <span>Niskie podatki i proste regulacje</span>\n          </li>\n          <li class=\"flex items-start\">\n            <i class=\"fas fa-check-circle mt-1 mr-2 text-green-500\"></i>\n            <span>Możliwość zakładania wirtualnych przedsiębiorstw</span>\n          </li>\n          <li class=\"flex items-start\">\n            <i class=\"fas fa-check-circle mt-1 mr-2 text-green-500\"></i>\n            <span>Wsparcie dla innowacyjnych projektów gospodarczych</span>\n          </li>\n        </ul>\n      </div>\n    </div>\n    \n    <div class=\"bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-md\">\n      <div class=\"flex items-center mb-4\">\n        <div class=\"w-12 h-12 bg-purple-100 dark:bg-purple-900 rounded-full flex items-center justify-center mr-4\">\n          <i class=\"fas fa-lightbulb text-purple-600 dark:text-purple-400 text-xl\"></i>\n        </div>\n        <h2 class=\"text-2xl font-bold\">Nowoczesność i Innowacja</h2>\n      </div>\n      <p class=\"text-gray-600 dark:text-gray-300 mb-4\">Jesteśmy społecznością skierowaną w przyszłość. Wykorzystujemy najnowsze technologie, promujemy innowacyjne rozwiązania i zachęcamy do kreatywnego myślenia.</p>\n      \n      <div class=\"bg-purple-50 dark:bg-purple-900/30 p-4 rounded-lg\">\n        <h3 class=\"font-semibold mb-2 text-purple-800 dark:text-purple-200\">W praktyce:</h3>\n        <ul class=\"text-purple-700 dark:text-purple-300 text-sm space-y-1\">\n          <li class=\"flex items-start\">\n            <i class=\"fas fa-check-circle mt-1 mr-2 text-purple-500\"></i>\n            <span>Inwestycje w technologie blockchain i AI</span>\n          </li>\n          <li class=\"flex items-start\">\n            <i class=\"fas fa-check-circle mt-1 mr-2 text-purple-500\"></i>\n            <span>Programy grantowe dla innowacyjnych projektów</span>\n          </li>\n          <li class=\"flex items-start\">\n            <i class=\"fas fa-check-circle mt-1 mr-2 text-purple-500\"></i>\n            <span>Cyfryzacja usług publicznych</span>\n          </li>\n        </ul>\n      </div>\n    </div>\n    \n    <div class=\"bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-md\">\n      <div class=\"flex items-center mb-4\">\n        <div class=\"w-12 h-12 bg-yellow-100 dark:bg-yellow-900 rounded-full flex items-center justify-center mr-4\">\n          <i class=\"fas fa-hands-helping text-yellow-600 dark:text-yellow-400 text-xl\"></i>\n        </div>\n        <h2 class=\"text-2xl font-bold\">Współpraca Międzynarodowa</h2>\n      </div>\n      <p class=\"text-gray-600 dark:text-gray-300 mb-4\">Wierzymy, że współpraca między mikronacjami i organizacjami jest kluczem do rozwoju i wymiany wartościowych doświadczeń. Budujemy mosty, a nie mury.</p>\n      \n      <div class=\"bg-yellow-50 dark:bg-yellow-900/30 p-4 rounded-lg\">\n        <h3 class=\"font-semibold mb-2 text-yellow-800 dark:text-yellow-200\">W praktyce:</h3>\n        <ul class=\"text-yellow-700 dark:text-yellow-300 text-sm space-y-1\">\n          <li class=\"flex items-start\">\n            <i class=\"fas fa-check-circle mt-1 mr-2 text-yellow-500\"></i>\n            <span>Partnerstwa z innymi mikronacjami</span>\n          </li>\n          <li class=\"flex items-start\">\n            <i class=\"fas fa-check-circle mt-1 mr-2 text-yellow-500\"></i>\n            <span>Uczestnictwo w międzynarodowych projektach</span>\n          </li>\n          <li class=\"flex items-start\">\n            <i class=\"fas fa-check-circle mt-1 mr-2 text-yellow-500\"></i>\n            <span>Wymiana kulturalna i edukacyjna</span>\n          </li>\n        </ul>\n      </div>\n    </div>\n  </div>\n  \n  <div class=\"bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-md mb-8\">\n    <h2 class=\"text-2xl font-bold mb-6\">Pozostałe Kluczowe Wartości</h2>\n    \n    <div class=\"grid md:grid-cols-3 gap-6\">\n      <div class=\"text-center p-4 border border-gray-200 dark:border-gray-700 rounded-lg\">\n        <div class=\"w-16 h-16 bg-red-100 dark:bg-red-900 rounded-full flex items-center justify-center mx-auto mb-3\">\n          <i class=\"fas fa-graduation-cap text-red-600 dark:text-red-400 text-xl\"></i>\n        </div>\n        <h3 class=\"font-semibold mb-2\">Edukacja i Rozwój</h3>\n        <p class=\"text-gray-600 dark:text-gray-300 text-sm\">Inwestujemy w rozwój naszych obywateli poprzez programy edukacyjne, szkolenia i dostęp do wiedzy.</p>\n      </div>\n      \n      <div class=\"text-center p-4 border border-gray-200 dark:border-gray-700 rounded-lg\">\n        <div class=\"w-16 h-16 bg-indigo-100 dark:bg-indigo-900 rounded-full flex items-center justify-center mx-auto mb-3\">\n          <i class=\"fas fa-shield-alt text-indigo-600 dark:text-indigo-400 text-xl\"></i>\n        </div>\n        <h3 class=\"font-semibold mb-2\">Bezpieczeństwo i Prywatność</h3>\n        <p class=\"text-gray-600 dark:text-gray-300 text-sm\">Chronimy dane naszych obywateli i zapewniamy bezpieczne środowisko do działania.</p>\n      </div>\n      \n      <div class=\"text-center p-4 border border-gray-200 dark:border-gray-700 rounded-lg\">\n        <div class=\"w-16 h-16 bg-pink-100 dark:bg-pink-900 rounded-full flex items-center justify-center mx-auto mb-3\">\n          <i class=\"fas fa-leaf text-pink-600 dark:text-pink-400 text-xl\"></i>\n        </div>\n        <h3 class=\"font-semibold mb-2\">Zrównoważony Rozwój</h3>\n        <p class=\"text-gray-600 dark:text-gray-300 text-sm\">Działamy z myślą o przyszłych pokoleniach, promując zrównoważone rozwiązania.</p>\n      </div>\n    </div>\n  </div>\n  \n  <div class=\"bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-md\">\n    <h2 class=\"text-2xl font-bold mb-6\">Kodeks Etyczny Obywatela</h2>\n    \n    <div class=\"bg-gray-100 dark:bg-gray-700 p-6 rounded-lg\">\n      <div class=\"flex items-start mb-4\">\n        <div class=\"w-10 h-10 bg-blue-100 dark:bg-blue-900 rounded-full flex items-center justify-center mr-4 mt-1\">\n          <i class=\"fas fa-scale-balanced text-blue-600 dark:text-blue-400\"></i>\n        </div>\n        <div>\n          <h3 class=\"font-semibold\">Zasady etyczne</h3>\n          <p class=\"text-gray-600 dark:text-gray-300 text-sm\">Każdy obywatel Republiki Globo zobowiązuje się przestrzegać następujących zasad:</p>\n        </div>\n      </div>\n      \n      <ol class=\"list-decimal list-inside text-gray-600 dark:text-gray-300 space-y-2 pl-6\">\n        <li>Szacunek dla godności i praw innych obywateli</li>\n        <li>Uczciwość w działaniach publicznych i prywatnych</li>\n        <li>Odpowiedzialność za swoje działania i słowa</li>\n        <li>Otwartość na dialog i różnorodność poglądów</li>\n        <li>Troska o dobro wspólne Republiki Globo</li>\n        <li>Przestrzeganie zasad ustroju i prawa Republiki</li>\n      </ol>\n      \n      <div class=\"mt-4 pt-4 border-t border-gray-200 dark:border-gray-600\">\n        <a href=\"#/documents\" class=\"inline-flex items-center text-blue-600 dark:text-blue-400 hover:underline\">\n          <i class=\"fas fa-file-alt mr-2\"></i> Pełna treść Kodeksu Etycznego\n        </a>\n      </div>\n    </div>\n  </div>\n</section>"
+}
+
+<==forum.json==>
+
+{
+  "title": "Forum",
+  "content": "<section class=\"mb-12\">\n  <div class=\"hero-pattern rounded-2xl p-8 md:p-12 text-center mb-8\">\n    <h1 class=\"text-4xl md:text-5xl font-bold mb-4 gradient-text\">Forum Republiki Globo</h1>\n    <p class=\"text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto\">Centralne miejsce dyskusji, wymiany pomysłów i budowy społeczności obywatelskiej.</p>\n  </div>\n\n  <div class=\"grid md:grid-cols-4 gap-8 mb-8\">\n    <div class=\"bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-md text-center card-hover\">\n      <div class=\"w-16 h-16 bg-blue-100 dark:bg-blue-900 rounded-full flex items-center justify-center mx-auto mb-4\">\n        <i class=\"fas fa-comments text-blue-600 dark:text-blue-400 text-2xl\"></i>\n      </div>\n      <h3 class=\"font-semibold mb-2\">Dyskusje Ogólne</h3>\n      <p class=\"text-sm text-gray-600 dark:text-gray-300\">256 wątków, 1,542 posty</p>\n    </div>\n    \n    <div class=\"bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-md text-center card-hover\">\n      <div class=\"w-16 h-16 bg-green-100 dark:bg-green-900 rounded-full flex items-center justify-center mx-auto mb-4\">\n        <i class=\"fas fa-gavel text-green-600 dark:text-green-400 text-2xl\"></i>\n      </div>\n      <h3 class=\"font-semibold mb-2\">Debaty Parlamentarne</h3>\n      <p class=\"text-sm text-gray-600 dark:text-gray-300\">42 wątki, 387 postów</p>\n    </div>\n    \n    <div class=\"bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-md text-center card-hover\">\n      <div class=\"w-16 h-16 bg-purple-100 dark:bg-purple-900 rounded-full flex items-center justify-center mx-auto mb-4\">\n        <i class=\"fas fa-lightbulb text-purple-600 dark:text-purple-400 text-2xl\"></i>\n      </div>\n      <h3 class=\"font-semibold mb-2\">Projekty i Innowacje</h3>\n      <p class=\"text-sm text-gray-600 dark:text-gray-300\">89 wątków, 654 posty</p>\n    </div>\n    \n    <div class=\"bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-md text-center card-hover\">\n      <div class=\"w-16 h-16 bg-yellow-100 dark:bg-yellow-900 rounded-full flex items-center justify-center mx-auto mb-4\">\n        <i class=\"fas fa-question-circle text-yellow-600 dark:text-yellow-400 text-2xl\"></i>\n      </div>\n      <h3 class=\"font-semibold mb-2\">Pomoc i Wsparcie</h3>\n      <p class=\"text-sm text-gray-600 dark:text-gray-300\">123 wątki, 789 postów</p>\n    </div>\n  </div>\n  \n  <div class=\"grid md:grid-cols-3 gap-8 mb-8\">\n    <div class=\"md:col-span-2 bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-md\">\n      <h2 class=\"text-2xl font-bold mb-6\">Najnowsze Dyskusje</h2>\n      \n      <div class=\"space-y-4\">\n        <div class=\"border-b border-gray-200 dark:border-gray-700 pb-4\">\n          <div class=\"flex justify-between items-start mb-2\">\n            <h3 class=\"font-semibold\">Propozycja nowej ustawy o gospodarce cyfrowej</h3>\n            <span class=\"text-sm text-gray-500\">5 min temu</span>\n          </div>\n          <p class=\"text-gray-600 dark:text-gray-300 text-sm mb-2\">Dyskusja na temat proponowanych zmian w prawie gospodarczym dotyczącym cyfrowych walut i blockchain.</p>\n          <div class=\"flex items-center text-sm text-gray-500\">\n            <span class=\"flex items-center mr-4\">\n              <i class=\"fas fa-user mr-1\"></i> Jan Kowalski\n            </span>\n            <span class=\"flex items-center mr-4\">\n              <i class=\"fas fa-comment mr-1\"></i> 24\n            </span>\n            <span class=\"flex items-center\">\n              <i class=\"fas fa-eye mr-1\"></i> 156\n            </span>\n          </div>\n        </div>\n        \n        <div class=\"border-b border-gray-200 dark:border-gray-700 pb-4\">\n          <div class=\"flex justify-between items-start mb-2\">\n            <h3 class=\"font-semibold\">Organizacja Festiwalu Kultury Globo 2024</h3>\n            <span class=\"text-sm text-gray-500\">2 godz. temu</span>\n          </div>\n          <p class=\"text-gray-600 dark:text-gray-300 text-sm mb-2\">Planowanie corocznego festiwalu kultury - zapraszamy do zgłaszania pomysłów i uczestnictwa w komitecie organizacyjnym.</p>\n          <div class=\"flex items-center text-sm text-gray-500\">\n            <span class=\"flex items-center mr-4\">\n              <i class=\"fas fa-user mr-1\"></i> Anna Nowak\n            </span>\n            <span class=\"flex items-center mr-4\">\n              <i class=\"fas fa-comment mr-1\"></i> 18\n            </span>\n            <span class=\"flex items-center\">\n              <i class=\"fas fa-eye mr-1\"></i> 203\n            </span>\n          </div>\n        </div>\n        \n        <div class=\"border-b border-gray-200 dark:border-gray-700 pb-4\">\n          <div class=\"flex justify-between items-start mb-2\">\n            <h3 class=\"font-semibold\">Problemy techniczne z nową platformą e-obywatel</h3>\n            <span class=\"text-sm text-gray-500\">5 godz. temu</span>\n          </div>\n          <p class=\"text-gray-600 dark:text-gray-300 text-sm mb-2\">Zgłaszanie problemów z nową platformą i propozycje usprawnień.</p>\n          <div class=\"flex items-center text-sm text-gray-500\">\n            <span class=\"flex items-center mr-4\">\n              <i class=\"fas fa-user mr-1\"></i> TechSupport\n            </span>\n            <span class=\"flex items-center mr-4\">\n              <i class=\"fas fa-comment mr-1\"></i> 32\n            </span>\n            <span class=\"flex items-center\">\n              <i class=\"fas fa-eye mr-1\"></i> 287\n            </span>\n          </div>\n        </div>\n        \n        <div class=\"text-center pt-4\">\n          <a href=\"#\" class=\"inline-flex items-center text-blue-600 dark:text-blue-400 hover:underline\">\n            Zobacz wszystkie dyskusje <i class=\"fas fa-arrow-right ml-2\"></i>\n          </a>\n        </div>\n      </div>\n    </div>\n    \n    <div class=\"bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-md\">\n      <h2 class=\"text-2xl font-bold mb-6\">Dołącz do Dyskusji</h2>\n      \n      <div class=\"space-y-6\">\n        <div>\n          <h3 class=\"font-semibold mb-2\">Zaloguj się na Forum</h3>\n          <p class=\"text-gray-600 dark:text-gray-300 text-sm mb-4\">Masz już konto? Zaloguj się, aby uczestniczyć w dyskusjach.</p>\n          <button class=\"w-full bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-lg transition\">\n            Zaloguj się\n          </button>\n        </div>\n        \n        <div>\n          <h3 class=\"font-semibold mb-2\">Zarejestruj się</h3>\n          <p class=\"text-gray-600 dark:text-gray-300 text-sm mb-4\">Nie masz jeszcze konta? Dołącz do naszej społeczności!</p>\n          <button class=\"w-full bg-green-600 hover:bg-green-700 text-white py-2 px-4 rounded-lg transition\">\n            Utwórz konto\n          </button>\n        </div>\n        \n        <div class=\"pt-4 border-t border-gray-200 dark:border-gray-700\">\n          <h3 class=\"font-semibold mb-2\">Dołącz na Discordzie</h3>\n          <p class=\"text-gray-600 dark:text-gray-300 text-sm mb-4\">Szybsze dyskusje i bezpośredni kontakt ze społecznością.</p>\n          <button class=\"w-full bg-purple-600 hover:bg-purple-700 text-white py-2 px-4 rounded-lg transition flex items-center justify-center\">\n            <i class=\"fab fa-discord mr-2\"></i> Dołącz na Discord\n          </button>\n        </div>\n      </div>\n    </div>\n  </div>\n  \n  <div class=\"bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-md\">\n    <h2 class=\"text-2xl font-bold mb-6\">Najaktywniejsi Użytkownicy</h2>\n    \n    <div class=\"grid grid-cols-2 md:grid-cols-5 gap-4 text-center\">\n      <div>\n        <div class=\"w-16 h-16 bg-blue-100 dark:bg-blue-900 rounded-full flex items-center justify-center mx-auto mb-2\">\n          <span class=\"font-semibold text-blue-600 dark:text-blue-400\">JK</span>\n        </div>\n        <p class=\"font-medium text-sm\">Jan Kowalski</p>\n        <p class=\"text-xs text-gray-500\">1,242 posty</p>\n      </div>\n      \n      <div>\n        <div class=\"w-16 h-16 bg-green-100 dark:bg-green-900 rounded-full flex items-center justify-center mx-auto mb-2\">\n          <span class=\"font-semibold text-green-600 dark:text-green-400\">AN</span>\n        </div>\n        <p class=\"font-medium text-sm\">Anna Nowak</p>\n        <p class=\"text-xs text-gray-500\">987 postów</p>\n      </div>\n      \n      <div>\n        <div class=\"w-16 h-16 bg-purple-100 dark:bg-purple-900 rounded-full flex items-center justify-center mx-auto mb-2\">\n          <span class=\"font-semibold text-purple-600 dark:text-purple-400\">PM</span>\n        </div>\n        <p class=\"font-medium text-sm\">Piotr Malinowski</p>\n        <p class=\"text-xs text-gray-500\">843 posty</p>\n      </div>\n      \n      <div>\n        <div class=\"w-16 h-16 bg-yellow-100 dark:bg-yellow-900 rounded-full flex items-center justify-center mx-auto mb-2\">\n          <span class=\"font-semibold text-yellow-600 dark:text-yellow-400\">KM</span>\n        </div>\n        <p class=\"font-medium text-sm\">Katarzyna Mazur</p>\n        <p class=\"text-xs text-gray-500\">756 postów</p>\n      </div>\n      \n      <div>\n        <div class=\"w-16 h-16 bg-red-100 dark:bg-red-900 rounded-full flex items-center justify-center mx-auto mb-2\">\n          <span class=\"font-semibold text-red-600 dark:text-red-400\">TS</span>\n        </div>\n        <p class=\"font-medium text-sm\">Tech Support</p>\n        <p class=\"text-xs text-gray-500\">632 posty</p>\n      </div>\n    </div>\n  </div>\n</section>"
+}
+

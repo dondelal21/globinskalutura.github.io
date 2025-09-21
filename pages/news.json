@@ -1,0 +1,47 @@
+{
+  "title": "Wiadomości",
+  "items": [
+    { 
+      "id": "n1", 
+      "title": "Otwarcie forum Republiki Globo", 
+      "excerpt": "Nowe forum uruchomione — miejsce dyskusji i projektów. Platforma oferuje nowoczesne funkcje i lepszą integrację z systemem obywatelskim.", 
+      "date": "2025-01-14",
+      "category": "Technologia"
+    },
+    { 
+      "id": "n2", 
+      "title": "Nowe ustawy NBRP", 
+      "excerpt": "Wprowadzono ustawę o e-obywatelstwie i standardach dokumentów. Nowe przepisy usprawnią funkcjonowanie administracji publicznej.", 
+      "date": "2024-10-24",
+      "category": "Prawo"
+    },
+    { 
+      "id": "n3", 
+      "title": "Współpraca z Republiką Gneżeńską", 
+      "excerpt": "Rozpoczęto oficjalne partnerstwo. Porozumienie obejmuje wymianę kulturalną i współpracę technologiczną między naszymi mikronacjami.", 
+      "date": "2024-10-23",
+      "category": "Międzynarodowe"
+    },
+    { 
+      "id": "n4", 
+      "title": "Start programu Globish Academy", 
+      "excerpt": "Program nauki języka globińskiego. Oferuje darmowe kursy online na różnych poziomach zaawansowania dla wszystkich obywateli.", 
+      "date": "2025-02-01",
+      "category": "Edukacja"
+    },
+    { 
+      "id": "n5", 
+      "title": "Nowa platforma e-obywatel", 
+      "excerpt": "Zmodernizowana platforma oferuje nowe funkcje i lepsze zabezpieczenia. Obywatele mogą teraz łatwiej załatwiać sprawy urzędowe online.", 
+      "date": "2025-02-15",
+      "category": "Technologia"
+    },
+    { 
+      "id": "n6", 
+      "title": "Festiwal Kultury Globo 2025", 
+      "excerpt": "Zapowiedź corocznego festiwalu kultury. Wydarzenie odbędzie się wirtualnie i będzie dostępne dla wszystkich obywateli.", 
+      "date": "2025-03-10",
+      "category": "Kultura"
+    }
+  ]
+}
